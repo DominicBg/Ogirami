@@ -147,7 +147,7 @@ public class Ship : MonoBehaviour {
 		Physics.gravity = Vector3.up * gravity;
 		cannonBall.useGravity = true;
 		cannonBall.velocity = CalculateLaunchData ().initialVelocity;
-
+       
 		readyToLaunch = false;
 
 		//remove aim
