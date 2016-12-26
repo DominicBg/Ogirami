@@ -65,11 +65,20 @@ public class World_Manager : MonoBehaviour {
 	}
 	void ChangeCameraBackGround()
 	{
-		
-		if (currentWorld == EnumWorld.Normal)
-			Camera.main.GetComponent<Camera> ().backgroundColor = COLORNORMAL;
-		else
-			Camera.main.GetComponent<Camera> ().backgroundColor = COLORFRACTAL;
+
+        if (currentWorld == EnumWorld.Normal)
+        {
+            Camera.main.GetComponent<Camera>().backgroundColor = COLORNORMAL;
+            Camera.main.GetComponent<NoiseAndScratches>().enabled = false;
+            Camera.main.GetComponent<ScreenOverlay>().enabled = false;
+        }
+        else
+        {
+            Camera.main.GetComponent<Camera>().backgroundColor = COLORFRACTAL;
+            Camera.main.GetComponent<NoiseAndScratches>().enabled = true;
+            Camera.main.GetComponent<ScreenOverlay>().enabled = true;
+        }
+           
 		
 
 	}

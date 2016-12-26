@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(SphereCollider))]
 public class Cannonball: MonoBehaviour {
 	CannonBall_Pooling pooling;
 	Rigidbody rigidbody;

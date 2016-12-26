@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawn : MonoBehaviour {
+    public Ship shipP;
     public GameObject enemyPrefab;
     bool spawnDelay = true;
     public GameObject playerRef;
@@ -24,8 +25,10 @@ public class EnemySpawn : MonoBehaviour {
             spawnDelay = false;
 			GameObject enemy = Instantiate(enemyPrefab, new Vector3(Random.Range(-10,10), transform.position.y, Random.Range(5, 10)), Quaternion.identity);
 			enemy.transform.SetParent (transform, true);
+            enemy.GetComponent<EnemyManager>().ship = shipP;
             enemy.GetComponent<EnemyManager>().playerP = playerRef;
 			enemy.GetComponent<EnemyManager> ().destination = destinationPos;
+            
             StartCoroutine(spawnWait());
             spawnCount++;
             if(spawnCount >= 5)

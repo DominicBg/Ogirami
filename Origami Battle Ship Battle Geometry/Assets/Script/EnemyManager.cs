@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyManager : MonoBehaviour {
 
-   
+    public Ship ship;
 	delegate Vector3 MovingType(); 
 	MovingType movingType;
 
@@ -16,6 +17,7 @@ public class EnemyManager : MonoBehaviour {
     // Use this for initialization
     void Start() {
 		movingType = MoveNormal;
+        ship = transform.parent.GetComponent<EnemySpawn>().shipP;
     }
 
     // Update is called once per frame
@@ -63,9 +65,22 @@ public class EnemyManager : MonoBehaviour {
 		) 
 		{
 			Debug.Log ("collision");
-			Destroy (gameObject);
+           
 
-		}
+            Destroy (gameObject);
+            ship.healthRemain--;
+            ship.healthCurrent.GetComponent<Text>().text = ship.healthRemain.ToString();
+            Debug.Log(ship.healthRemain);
+            if(ship.healthRemain <= 0)
+            {
+                Debug.Log("ur lose");
+                ship.healthRemain = 0;
+                ship.healthCurrent.GetComponent<Text>().text = ship.healthRemain.ToString();
+            }
+            
+            
+
+        }
 	}
 
 	Vector3 MoveSin()

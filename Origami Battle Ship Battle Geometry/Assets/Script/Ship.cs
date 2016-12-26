@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(ParticleSystem))]
 public class Ship : MonoBehaviour {
@@ -19,6 +20,8 @@ public class Ship : MonoBehaviour {
 	[SerializeField] float posMinX;
 	[SerializeField] float posMaxX;
 
+    public int healthRemain = 5;
+    public GameObject healthCurrent;
 
 	public float h = 5;
 	const float MAX_H = .1f;
@@ -54,7 +57,7 @@ public class Ship : MonoBehaviour {
 		pathParticleSystem = GetComponent<ParticleSystem> ();
 		pooling = GetComponent<CannonBall_Pooling> ();
 		readyToLaunch = true;
-
+        healthCurrent.GetComponent<Text>().text = healthRemain.ToString();
 		ColorGradient = HSBColor.ToColor(new HSBColor(currentH, 1, 1));
 
 	}
