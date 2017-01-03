@@ -7,7 +7,7 @@ public class CannonBall_Pooling : MonoBehaviour {
 	[SerializeField]int howManyCannonBall;
 	[SerializeField]GameObject prefabCannonBall;
 	GameObject[] cannonBallList;
-
+	public Ship shipRef;
 	int indexCpt = 0;
 
 	// Use this for initialization

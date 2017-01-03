@@ -25,11 +25,12 @@ public class Cannonball: MonoBehaviour {
 	void Update ()
 	{
 		testReturnPooling ();
+
 	}
 	void testReturnPooling()
 	{
 
-		if (transform.position.y < transform.parent.position.y - 5)
+		if (transform.position.y < transform.parent.position.y - 5 || !World_Manager.canChange)
 		{
 			rigidbody.useGravity = false;
 			rigidbody.transform.position = transform.parent.position;
@@ -39,10 +40,13 @@ public class Cannonball: MonoBehaviour {
 		}
 
 	}
+
     void OnTriggerEnter(Collider col)
     {
 		if(col.gameObject.tag == "Ennemy" && rigidbody.useGravity == true)
         {
+			//add particle, give points
+			pooling.shipRef.GiveScore(1);
             Destroy(col.gameObject);
         }
     }

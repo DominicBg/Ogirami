@@ -34,7 +34,7 @@ public class EnemySpawn : MonoBehaviour {
             if(spawnCount >= 5)
             {
                 spawnCount = 0;
-                timerSpawn -= .25f; 
+                timerSpawn -= .15f; 
                 if(timerSpawn <= 1f)
                 {
                     timerSpawn = 1f;

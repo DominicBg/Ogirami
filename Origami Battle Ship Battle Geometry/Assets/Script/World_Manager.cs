@@ -14,7 +14,7 @@ public class World_Manager : MonoBehaviour {
 	static public bool canChange = true;
 
 	[SerializeField]Transform Null_World;
-
+	[SerializeField]GameObject FractalWall;
 
 	[SerializeField]Color COLORNORMAL;
 	[SerializeField]Color COLORFRACTAL;
@@ -69,14 +69,17 @@ public class World_Manager : MonoBehaviour {
         if (currentWorld == EnumWorld.Normal)
         {
             Camera.main.GetComponent<Camera>().backgroundColor = COLORNORMAL;
-            Camera.main.GetComponent<NoiseAndScratches>().enabled = false;
-            Camera.main.GetComponent<ScreenOverlay>().enabled = false;
+        //    Camera.main.GetComponent<NoiseAndScratches>().enabled = false;
+       //     Camera.main.GetComponent<ScreenOverlay>().enabled = false;
+			FractalWall.SetActive(false);
         }
         else
         {
             Camera.main.GetComponent<Camera>().backgroundColor = COLORFRACTAL;
-            Camera.main.GetComponent<NoiseAndScratches>().enabled = true;
-            Camera.main.GetComponent<ScreenOverlay>().enabled = true;
+         //   Camera.main.GetComponent<NoiseAndScratches>().enabled = true;
+        //    Camera.main.GetComponent<ScreenOverlay>().enabled = true;
+			FractalWall.SetActive(true);
+
         }
            
 		
@@ -92,10 +95,12 @@ public class World_Manager : MonoBehaviour {
 				(
 					Null_World.eulerAngles.x,
 					Null_World.eulerAngles.y,
-					Mathf.Lerp (z_startRotation, z_endRotation, t_lerp_rotation)
+					Mathf.Lerp (z_startRotation, z_endRotation, Mathf.Tan(t_lerp_rotation))
 				);
 
 
 		}
 	}
+
+
 }

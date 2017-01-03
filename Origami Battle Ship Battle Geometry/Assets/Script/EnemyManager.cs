@@ -69,7 +69,7 @@ public class EnemyManager : MonoBehaviour {
 
             Destroy (gameObject);
             ship.healthRemain--;
-            ship.healthCurrent.GetComponent<Text>().text = ship.healthRemain.ToString();
+			ship.healthCurrent.text = "hP : " + ship.healthRemain.ToString();
             Debug.Log(ship.healthRemain);
             if(ship.healthRemain <= 0)
             {

@@ -21,7 +21,9 @@ public class Ship : MonoBehaviour {
 	[SerializeField] float posMaxX;
 
     public int healthRemain = 5;
-    public GameObject healthCurrent;
+	public Text healthCurrent;
+	public int score;
+	public Text ScoreCurrent;
 
 	public float h = 5;
 	const float MAX_H = .1f;
@@ -57,34 +59,44 @@ public class Ship : MonoBehaviour {
 		pathParticleSystem = GetComponent<ParticleSystem> ();
 		pooling = GetComponent<CannonBall_Pooling> ();
 		readyToLaunch = true;
-        healthCurrent.GetComponent<Text>().text = healthRemain.ToString();
+        healthCurrent.text = "HP LOL :" + healthRemain.ToString();
 		ColorGradient = HSBColor.ToColor(new HSBColor(currentH, 1, 1));
 
+	}
+	public void GiveScore(int points)
+	{
+		score += points;
+		ScoreCurrent.text = score.ToString();
 	}
 	// Update is called once per frame
 	void Update ()
 	{
+
 		floatingWater ();
 
+	
+
+
 		if (!World_Manager.canChange)
+		{
+			ErasePath ();
 			return;
-		
-		MoveCannon();
-
-		if (Input.GetMouseButtonDown (0)) 
-			t_h = 0;
-
-
+		}
 		if (Input.GetMouseButtonUp (0) && readyToLaunch)
 			Launch ();
 		else if (Input.GetMouseButton (0))
 			DrawPath ();
 
-		//CannonBallTest ();
+
+
+		MoveCannon();
+
+		if (Input.GetMouseButtonDown (0)) 
+			t_h = 0;
 	}
 	void floatingWater()
 	{
-				transform.position = _startPosition + new Vector3 (0, 0.2f * Mathf.Sin ( Time.time), 0);
+		transform.position = _startPosition + new Vector3 (0, 0.2f * Mathf.Sin ( Time.time), 0);
 	}
 	void FingerControl()
 	{
@@ -110,15 +122,12 @@ public class Ship : MonoBehaviour {
 	}
 	void MoveCannon()
 	{
-
 		if (Input.GetMouseButton (0))
 		{
-
 			Vector2 mouse = Input.mousePosition;
 
 			float x = mouse.x / Screen.width;
 			float y = mouse.y / Screen.height;
-
 
 			Vector3 position = new Vector3 
 				(
@@ -131,27 +140,14 @@ public class Ship : MonoBehaviour {
 
 			//Cannon.transform.LookAt (target);
 			Cannon.transform.LookAt (targetAim);
-
-
 		}
 	}
-
-	//CANNON
-	/* 
-	void CannonBallTest()
+	void ErasePath()
 	{
-		if (readyToLaunch)
-			return;
+		pathPoints = new ParticleSystem.Particle[0];
+		pathParticleSystem.SetParticles(pathPoints, pathPoints.Length);
 
-		if (cannonBall.transform.position.y < transform.position.y - 5)
-		{
-			cannonBall.useGravity = false;
-			cannonBall.transform.position = transform.position;
-			readyToLaunch = true;
-			cannonBall.velocity = new Vector3 (0, 0, 0);
-		}
 	}
-	*/
 	void Launch()
 	{
 		cannonBall = pooling.returnCannonBall ();
@@ -159,10 +155,15 @@ public class Ship : MonoBehaviour {
 		if (cannonBall == null)
 			return;
 
-
+		/*
 		if (Camera.main.gameObject.GetComponent<Shake> () == null)
 			Camera.main.gameObject.AddComponent<Shake> ();
-		
+		*/
+		if (t_h > .2f) 
+		{	
+			GameEffect.Shake (Camera.main.gameObject, Mathf.Lerp (0, .2f, t_h));
+			GameEffect.FreezeFrame (Mathf.Lerp (0, .1f, t_h));
+		}
 		Rigidbody rigidBody = cannonBall.GetComponent<Rigidbody> ();
 
 		cannonBall.gameObject.SetActive (true);
@@ -175,8 +176,7 @@ public class Ship : MonoBehaviour {
 		readyToLaunch = false;
 
 		//remove aim
-		pathPoints = new ParticleSystem.Particle[0];
-		pathParticleSystem.SetParticles(pathPoints, pathPoints.Length);
+		ErasePath();
 		currentH = 0;
 		//LightColorConvertion ();
 		StartCoroutine(DelayReadyToLaunch());
@@ -203,7 +203,8 @@ public class Ship : MonoBehaviour {
 
 	void DrawPath()
 	{
-
+		
+		
 		LightColorUpdate ();
 
 		LaunchData launchData = CalculateLaunchData ();
@@ -227,10 +228,11 @@ public class Ship : MonoBehaviour {
 			pathPoints [i].position = new Vector3(drawPoint.x,drawPoint.y,drawPoint.z + 5);
 
 			pathPoints [i].size = 0.3f;
-			if (readyToLaunch) 
+			if (World_Manager.canChange) 
 			{
-				Color col = new Color (Mathf.Sin (Time.time) / 2 + 0.5f, Mathf.Cos (Time.time) / 2 + 0.5f, Mathf.Sin (Time.time * 2) / 2 + 0.5f);
-				pathPoints [i].color = col;
+				//Color col = new Color (Mathf.Sin (Time.time) / 2 + 0.5f, Mathf.Cos (Time.time) / 2 + 0.5f, Mathf.Sin (Time.time * 2) / 2 + 0.5f);
+
+				pathPoints [i].color = GameEffect.SinGradient(Color.red, Color.blue, 2f);
 			} 
 			else 
 			{
