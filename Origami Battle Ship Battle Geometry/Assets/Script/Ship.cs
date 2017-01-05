@@ -20,10 +20,7 @@ public class Ship : MonoBehaviour {
 	[SerializeField] float posMinX;
 	[SerializeField] float posMaxX;
 
-    public int healthRemain = 5;
-	public Text healthCurrent;
-	public int score;
-	public Text ScoreCurrent;
+
 
 	public float h = 5;
 	const float MAX_H = .1f;
@@ -49,24 +46,32 @@ public class Ship : MonoBehaviour {
 	public Transform target;
 	public Vector3 targetAim;
 
+	public Game_Manager gameManager;
+
+	//AUDIO
+	[SerializeField]AudioClip[] sfxSoftCanon;
+	[SerializeField]AudioClip[] sfxHardCanon;
+
 
 
 	void Start()
 	{
+		gameManager = Camera.main.GetComponent<Game_Manager> ();
 		_startPosition = transform.position;
-
 		//Cannon
 		pathParticleSystem = GetComponent<ParticleSystem> ();
 		pooling = GetComponent<CannonBall_Pooling> ();
 		readyToLaunch = true;
-        healthCurrent.text = "HP LOL :" + healthRemain.ToString();
 		ColorGradient = HSBColor.ToColor(new HSBColor(currentH, 1, 1));
-
+		EndGameShip ();
 	}
-	public void GiveScore(int points)
+	public void StartGameShip()
 	{
-		score += points;
-		ScoreCurrent.text = score.ToString();
+		target.gameObject.SetActive (true);
+	}
+	public void EndGameShip()
+	{
+		target.gameObject.SetActive (false);
 	}
 	// Update is called once per frame
 	void Update ()
@@ -74,7 +79,8 @@ public class Ship : MonoBehaviour {
 
 		floatingWater ();
 
-	
+		if (Game_Manager.inMenu)
+			return;
 
 
 		if (!World_Manager.canChange)
@@ -94,9 +100,11 @@ public class Ship : MonoBehaviour {
 		if (Input.GetMouseButtonDown (0)) 
 			t_h = 0;
 	}
+
 	void floatingWater()
 	{
 		transform.position = _startPosition + new Vector3 (0, 0.2f * Mathf.Sin ( Time.time), 0);
+		target.transform.eulerAngles += Vector3.up * Time.deltaTime * 20;
 	}
 	void FingerControl()
 	{
@@ -132,7 +140,7 @@ public class Ship : MonoBehaviour {
 			Vector3 position = new Vector3 
 				(
 					Mathf.Lerp(posMinX,posMaxX,x),
-					0,
+					-1,
 					Mathf.Lerp(posMinY,posMaxY,y)
 				);
 
@@ -159,10 +167,15 @@ public class Ship : MonoBehaviour {
 		if (Camera.main.gameObject.GetComponent<Shake> () == null)
 			Camera.main.gameObject.AddComponent<Shake> ();
 		*/
-		if (t_h > .2f) 
+		if (t_h > .3f)
 		{	
 			GameEffect.Shake (Camera.main.gameObject, Mathf.Lerp (0, .2f, t_h));
 			GameEffect.FreezeFrame (Mathf.Lerp (0, .1f, t_h));
+			GameSound.PlaySound (sfxHardCanon);
+		}
+		else 
+		{
+			GameSound.PlaySound (sfxSoftCanon);
 		}
 		Rigidbody rigidBody = cannonBall.GetComponent<Rigidbody> ();
 
@@ -175,6 +188,8 @@ public class Ship : MonoBehaviour {
        
 		readyToLaunch = false;
 
+
+		Cannon.transform.GetComponentInChildren<ParticleSystem> ().Play ();
 		//remove aim
 		ErasePath();
 		currentH = 0;
@@ -195,10 +210,14 @@ public class Ship : MonoBehaviour {
 		ColorGradient = HSBColor.ToColor(
 			new HSBColor
 			( 
-				Mathf.Lerp (0, .7f, t_h), 1, 1)
+				Mathf.Lerp (0, .7f, t_h), .4f, 1)
 			);
 		light.color = ColorGradient;
+	
+		if(World_Manager.currentWorld == World_Manager.EnumWorld.Normal)
+			Camera.main.backgroundColor = ColorGradient;
 
+		target.GetComponent<MeshRenderer> ().material.SetColor ("_TintColor", new Color(ColorGradient.r,ColorGradient.g,ColorGradient.b,0.2f));
 	}
 
 	void DrawPath()
@@ -212,7 +231,7 @@ public class Ship : MonoBehaviour {
 
 		pathPoints = new ParticleSystem.Particle[pathResolution];
 		int aimTargetIndex = pathResolution / 4;
-		for (int i = 3; i < pathResolution; i++) 
+		for (int i = 2; i < pathResolution; i++) 
 		{
 
 
@@ -231,8 +250,8 @@ public class Ship : MonoBehaviour {
 			if (World_Manager.canChange) 
 			{
 				//Color col = new Color (Mathf.Sin (Time.time) / 2 + 0.5f, Mathf.Cos (Time.time) / 2 + 0.5f, Mathf.Sin (Time.time * 2) / 2 + 0.5f);
-
-				pathPoints [i].color = GameEffect.SinGradient(Color.red, Color.blue, 2f);
+				pathPoints [i].color = new Color(ColorGradient.r,ColorGradient.g,ColorGradient.b,0.2f);
+				//pathPoints [i].color = GameEffect.SinGradient(Color.red, Color.blue, 2f);
 			} 
 			else 
 			{

@@ -46,8 +46,8 @@ public class Cannonball: MonoBehaviour {
 		if(col.gameObject.tag == "Ennemy" && rigidbody.useGravity == true)
         {
 			//add particle, give points
-			pooling.shipRef.GiveScore(1);
-            Destroy(col.gameObject);
+			pooling.shipRef.gameManager.GiveScore(1);
+			col.GetComponent<EnemyScript> ().Death ();
         }
     }
 }

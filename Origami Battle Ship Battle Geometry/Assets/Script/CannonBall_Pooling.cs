@@ -9,7 +9,7 @@ public class CannonBall_Pooling : MonoBehaviour {
 	GameObject[] cannonBallList;
 	public Ship shipRef;
 	int indexCpt = 0;
-
+	[SerializeField]Transform parent;
 	// Use this for initialization
 	void Start () 
 	{
@@ -17,10 +17,11 @@ public class CannonBall_Pooling : MonoBehaviour {
 		for (int i = 0; i < howManyCannonBall; i++)
 		{
 			GameObject Cannon = Instantiate (prefabCannonBall, transform.position, Quaternion.identity) as GameObject;
-			Cannon.transform.SetParent (transform, true);
+			Cannon.transform.SetParent (parent, true);
 			Cannon.GetComponent<Cannonball> ().SetPooling (this);
 			cannonBallList[i] = Cannon;
 			cannonBallList [i].SetActive (false);
+
 		}
 	}
 	/// <summary>

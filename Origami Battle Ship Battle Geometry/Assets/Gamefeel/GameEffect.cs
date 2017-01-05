@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class GameEffect {
 
@@ -78,7 +79,16 @@ public static class GameEffect {
 	/// <param name="color1">Color1.</param>
 	/// <param name="color2">Color2.</param>
 	/// <param name="speed">Speed.</param>
-
+	public static Color ColorLerp(Color color1, Color32 color2, float t)
+	{
+		return new Color 
+			(
+			Mathf.Lerp (color1.r, color2.r, t),
+			Mathf.Lerp (color1.g, color2.g, t),
+			Mathf.Lerp (color1.b, color2.b, t),
+			Mathf.Lerp (color1.a, color2.a, t)
+			);
+	}
 	public static Color SinGradient(Color color1, Color color2, float speed)
 	{
 		float t = (Mathf.Sin(Time.timeSinceLevelLoad * speed)+1) / 2;
@@ -92,6 +102,7 @@ public static class GameEffect {
 
 		return color;
 	}
+
 
 	public static void FlashSprite(GameObject obj, Color color,float duration)
 	{
@@ -135,6 +146,196 @@ public static class GameEffect {
 
 	}
 
+	public static void FlashCamera(Color color, float time)
+	{
+		if(Camera.main.gameObject.GetComponent<FlashCameraClass> () == null)
+			Camera.main.gameObject.AddComponent<FlashCameraClass> ();
+		
+		Camera.main.gameObject.GetComponent<FlashCameraClass> ().Flash (color,null, time);
+	}
+	public static void FlashCamera(Sprite image, float time)
+	{
+		if(Camera.main.gameObject.GetComponent<FlashCameraClass> () == null)
+			Camera.main.gameObject.AddComponent<FlashCameraClass> ();
+
+		Camera.main.gameObject.GetComponent<FlashCameraClass> ().Flash (Color.white,image, time);
+
+	}
+}
+public static class GameSound
+{
+	static bool isSetAudio = false;
+	static AudioSource source;
+	static MusicClass musicSource;
+	static float soundVolume = 1;
+	static float musicVolume = 1;
+
+	//toggle
+	static float toggleState = 0;
+	static float toggleRatio = 0;
+
+	//toggle
+	static float toggleMusicState = 0;
+	static float toggleMusicRatio = 0;
+
+	public static void EnableAudio()
+	{
+		isSetAudio = true;
+		Camera.main.gameObject.AddComponent<AudioSource> ();
+		source = Camera.main.gameObject.GetComponent<AudioSource> ();
+	}
+	public static void EnableMusicChannel()
+	{
+		if (Camera.main.gameObject.GetComponent<MusicClass> () == null) 
+		{
+			Camera.main.gameObject.AddComponent<MusicClass> ();
+			musicSource = Camera.main.gameObject.GetComponent<MusicClass> ();
+		}
+	}
+
+	public static void SetGlobalMusicVolume(int volume)
+	{
+		musicVolume = (float)volume / 100;
+		musicSource.globalMusicVolume = musicVolume;
+		musicSource.UpdateAllVolume ();
+	}
+	/// <summary>
+	/// Sets the sound volume. Value fom 0 to 1
+	/// </summary>
+	/// <param name="volume">Volume.</param>
+	public static void SetGlobalMusicVolume(float volume)
+	{
+		musicVolume = volume;
+		musicSource.globalMusicVolume = musicVolume;
+		musicSource.UpdateAllVolume ();
+
+	}
+	public static void EnableToggleMusicVolume(int howManyState)
+	{
+		toggleMusicState = 1;
+		toggleMusicRatio = 1 / (float)howManyState;
+		musicVolume = toggleMusicState;
+	}
+	public static float ToggleMusicVolume()
+	{
+		toggleMusicState -= toggleMusicRatio;
+		if (toggleMusicState < -.1f)
+			toggleMusicState = 1;
+
+		musicVolume = toggleMusicState;
+
+		SetGlobalMusicVolume (musicVolume);
+		return toggleMusicState;
+	}
+	public static void SetMusicChannel(int howManychannel)
+	{
+		EnableMusicChannel ();
+		musicSource.SetChannel (howManychannel);
+	}
+	public static void SetVolumeMusicChannel(int whichChannel, float volume)
+	{
+		musicSource.SetVolume (whichChannel,volume,false);
+	}
+	public static void SetVolumeMusicChannel(int whichChannel, float volume,bool andPlay)
+	{
+		musicSource.SetVolume (whichChannel,volume,andPlay);
+	}
+	public static void SetMusicIntoChannel(AudioClip[] musics)
+	{
+		musicSource.SetMusicIntoChannel(musics);
+	}
+	public static void SetMusicIntoChannel(AudioClip music, int whichChannel)
+	{
+		musicSource.SetMusicIntoChannel(music,whichChannel);
+	}
+	public static void SetMusicIntoChannel(AudioClip music, int whichChannel,float volume, bool andPlay)
+	{
+		musicSource.SetMusicIntoChannel(music,whichChannel,volume,andPlay);
+	}
+	public static void SetTransition(int channelFrom,int channelTo, int time)
+	{
+		musicSource.SetTransition(channelFrom,channelTo,time);
+	}
+	/// <summary>
+	/// Sets the sound volume. Value fom 0 to 100
+	/// </summary>
+	/// <param name="volume">Volume.</param>
+	public static void SetGlobalSoundVolume(int volume)
+	{
+		soundVolume = (float)volume / 100;
+	}
+	/// <summary>
+	/// Sets the sound volume. Value fom 0 to 1
+	/// </summary>
+	/// <param name="volume">Volume.</param>
+	public static void SetGlobalSoundVolume(float volume)
+	{
+		soundVolume = volume;
+	}
+
+	public static void EnableToggleSoundVolume(int howManyState)
+	{
+		toggleState = 1;
+		toggleRatio = 1 / (float)howManyState;
+		soundVolume = toggleState;
+	}
+	public static float ToggleSoundVolume()
+	{
+		toggleState -= toggleRatio;
+		if (toggleState < -.1f)
+			toggleState = 1;
+
+		soundVolume = toggleState;
+		return toggleState;
+	}
+	public static void PlaySound(AudioClip clip)
+	{
+		source.volume = Random.Range (0.9f, 1) * soundVolume;
+		source.pitch = Random.Range (0.9f, 1.1f);
+		source.PlayOneShot (clip);
+	}
+	public static void PlaySound(AudioClip clip, float varianceVolume, float variancePitch)
+	{
+		source.volume = Random.Range (1 - varianceVolume, 1) * soundVolume;
+		source.pitch = Random.Range (1-variancePitch,1+variancePitch);
+		source.PlayOneShot (clip);
+	}
+	public static void PlaySound(AudioClip[] clip)
+	{
+		source.volume = Random.Range (0.9f, 1) * soundVolume;
+		source.pitch = Random.Range (0.9f, 1.1f);
+		source.PlayOneShot (clip[Random.Range(0,clip.Length)]);
+	}
+	public static void PlaySound(AudioClip[] clip, float varianceVolume, float variancePitch)
+	{
+		source.volume = Random.Range (1-varianceVolume, 1) * soundVolume;
+		source.pitch = Random.Range (1-variancePitch,1+variancePitch);
+		source.PlayOneShot (clip[Random.Range(0,clip.Length)]);
+	}
+	public static void PlaySound(AudioClip clip,bool isStatic)
+	{
+		
+		if (isStatic)
+		{
+			source.volume = soundVolume;
+			source.PlayOneShot (clip);
+		}
+		else
+			GameSound.PlaySound (clip);
+	}
+	//specific audio source
+	public static void PlaySound(AudioSource _source, AudioClip clip)
+	{
+		_source.volume = Random.Range (0.9f, 1) * soundVolume;
+		_source.pitch = Random.Range (0.9f, 1.1f);
+		_source.PlayOneShot (clip);
+	}
+	public static void PlaySound(AudioSource _source, AudioClip[] clip)
+	{
+		_source.volume = Random.Range (0.8f, 1) * soundVolume;
+		_source.pitch = Random.Range (0.8f, 1.2f);
+		_source.PlayOneShot (clip[Random.Range(0,clip.Length)]);
+	}
 
 }
 public static class GameMath
@@ -175,23 +376,39 @@ public static class GameMath
 		return .5f +  stretchAmount + ((C + .5f) * stretchAmount);
 	}
 
-}
-/*
-public static class GameController
-{
-	public static Vector2 Control(GameObject obj, string horizontal, string vertical, float speed)
+	public static double Map(double x, double in_min, double in_max, double out_min, double out_max)
 	{
-		Vector2 vec = new Vector2 (Input.GetAxis (horizontal), Input.GetAxis (vertical));
-		vec.Normalize ();
-		vec *= speed;
-		return vec;
+		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	}
-	public static void Move(GameObject obj, Vector2 vector)
+	public static int Map(int x, int in_min, int in_max, int out_min, int out_max)
 	{
-		//obj.transform.position += vector;
+		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	}
-}
+	public static uint Map(uint x, uint in_min, uint in_max, uint out_min, uint out_max)
+	{
+		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	}
+	public static float Map(float x, float in_min, float in_max, float out_min, float out_max)
+	{
+		float y = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	/*	if (y > out_max)
+			return out_max;
+		else if(y < out_min)
+			return out_min;
 */
+		return y;
+	}
+	public static long Map(long x, long in_min, long in_max, long out_min, long out_max)
+	{
+		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	}
+	public static ulong Map(ulong x, ulong in_min, ulong in_max, ulong out_min, ulong out_max)
+	{
+		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	}
+
+}
+
 public class FreezeFrameClass : MonoBehaviour {
 
 	public float freezeSec;
@@ -256,7 +473,7 @@ public class ShakeClass : MonoBehaviour {
 	}
 }
 
-public class FlashSpriteClass:MonoBehaviour
+public class FlashSpriteClass : MonoBehaviour
 {
 	public enum FlashSpriteType
 	{
@@ -341,4 +558,158 @@ public class FlashSpriteClass:MonoBehaviour
 		}
 	}
 
+}
+public class FlashCameraClass : MonoBehaviour
+{
+	bool isUsed = false;
+	float t = 0;
+	float speed;
+	GameObject screen;
+	Color color;
+	Image image;
+
+	bool isFlashing = false;
+	bool isIncreasing = true;
+
+	void Awake()
+	{
+		screen = new GameObject ();
+		screen.AddComponent<Image> ();
+		screen.GetComponent<Image> ().raycastTarget = false;
+		screen.name = "Flashing Screen";
+
+
+		screen.transform.SetParent (GameObject.Find ("Canvas").transform, true);
+		screen.GetComponent<Image> ().rectTransform.sizeDelta = new Vector2 (Screen.width, Screen.height);
+		screen.GetComponent<Image> ().rectTransform.localPosition = Vector2.zero;
+
+	//	screen.GetComponent<Image> ().rectTransform.x
+	}
+
+	public void Flash(Color _color, Sprite sprite, float time)
+	{
+		speed = 1 / time;
+		t = 0;
+		color = _color;
+		screen.GetComponent<Image> ().sprite = sprite;
+		isIncreasing = true;
+		isFlashing = true;
+	}
+	void Update()
+	{
+		if (!isFlashing)
+			return;
+		
+		t += Time.deltaTime * speed * 2;
+
+
+		if (isIncreasing)
+		{
+			screen.GetComponent<Image> ().color  = new Color (color.r, color.g, color.b, Mathf.Lerp (0,  color.a, t));
+			if (t > 1)
+			{
+				isIncreasing = false;
+				t = 0;
+			}
+		}
+		else
+		{
+			screen.GetComponent<Image> ().color  = new Color (color.r, color.g, color.b, Mathf.Lerp (color.a, 0, t));
+			if (t > 1)
+				isFlashing = false;
+		}
+	}
+}
+public class MusicClass : MonoBehaviour
+{
+	GameObject channelGameObject;
+	AudioSource[] channels;
+	float[] volumes;
+
+	float t;
+	bool inTransition;
+	float speed;
+	int channelFrom, channelTo;
+
+	public float globalMusicVolume = 1;
+
+	void Awake()
+	{
+		GameObject _channel = Instantiate (new GameObject (), Camera.main.gameObject.transform.position, Quaternion.identity) as GameObject;
+		_channel.name = "Music Manager";
+		_channel.transform.SetParent (Camera.main.gameObject.transform, true);
+		channelGameObject = _channel;
+	}
+	public void SetChannel(int howManyChannel)
+	{
+		channels = new AudioSource[howManyChannel];
+		volumes = new float[howManyChannel];
+
+		for (int i = 0; i < howManyChannel; i++)
+		{
+			channelGameObject.AddComponent<AudioSource> ();
+			channelGameObject.GetComponent<AudioSource> ().loop = true;
+
+		}
+		channels = channelGameObject.GetComponents<AudioSource> ();
+	}
+	public void UpdateAllVolume()
+	{
+		Debug.Log (globalMusicVolume);
+		for (int i = 0; i < channels.Length; i++)
+			channels[i].volume = volumes[i] * globalMusicVolume;
+	}
+	public void SetMusicIntoChannel(AudioClip music, int channel)
+	{
+		channels [channel].clip = music;
+	}
+	public void SetMusicIntoChannel(AudioClip music, int channel,float volume,bool andPlay)
+	{
+		channels [channel].clip = music;
+		volumes [channel] = volume;
+		channels [channel].volume = volumes [channel] * globalMusicVolume ;
+		if (andPlay)
+			channels [channel].Play ();
+	}
+	public void SetMusicIntoChannel(AudioClip[] music)
+	{
+		for (int i = 0; i < music.Length; i++)
+		{
+			channels [i].clip = music[i];
+		}
+	}
+	public void SetVolume(int ch, float volume,bool andPlay)
+	{
+		volumes [ch] = volume;
+		channels [ch].volume = volumes [ch] * globalMusicVolume ;
+
+		if (andPlay)
+			channels [ch].Play ();
+	}
+	public void SetTransition(int chFrom, int chTo, float time)
+	{
+		channelFrom = chFrom;
+		channelTo = chTo;
+		speed = 1 / time;
+		inTransition = true;
+		t = 0;
+	}
+	void Update()
+	{
+		if (inTransition) 
+		{
+			t += Time.deltaTime * speed;
+
+			volumes [channelFrom] = Mathf.Lerp (1*globalMusicVolume, 0, t);
+			volumes [channelTo] = Mathf.Lerp (0,1*globalMusicVolume, t);
+
+			channels [channelFrom].volume = volumes [channelFrom];
+			channels [channelTo].volume = volumes [channelTo];
+
+			if (t > 1)
+			{
+				inTransition = false;
+			}
+		}
+	}
 }

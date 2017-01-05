@@ -32,8 +32,11 @@ public class Wave : MonoBehaviour {
 				*/
 			vertices [i] += normals [i] * WaveFunction(i);
 		}
-		Water.mesh.vertices = vertices;
-		WaterCopy.mesh.vertices = vertices;
+		if (Water.gameObject.activeInHierarchy)
+		{
+			Water.mesh.vertices = vertices;
+			WaterCopy.mesh.vertices = vertices;
+		}
 	}
 	float SinWave(int i)
 	{
