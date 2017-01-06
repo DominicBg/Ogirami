@@ -24,8 +24,10 @@ public class Game_Manager : MonoBehaviour {
 	float toggleSoundRatio;
 	float toggleMusicRatio;
 
+	[SerializeField]GameObject[] introUI_Texts_icons;
 
-	[SerializeField]Ship ship;
+
+	public Ship ship;
 	[SerializeField]AudioClip sfxDamageFromNormal;
 	[SerializeField]AudioClip sfxDamageFromFractal;
 
@@ -36,6 +38,12 @@ public class Game_Manager : MonoBehaviour {
 	[SerializeField]AudioClip musicNormal;
 	[SerializeField]AudioClip musicFractal;
 	// Use this for initialization
+
+	public Vector3 StartPositionCamera;
+	public Vector3 EndPositionCamera;
+
+
+
 	void Start ()
 	{
 		GameSound.EnableAudio ();
@@ -86,6 +94,9 @@ public class Game_Manager : MonoBehaviour {
 
 		toggleSoundRatio = PlayerPrefs.GetFloat ("GameSound_ToggleSoundVolume");
 		toggleMusicRatio = PlayerPrefs.GetFloat ("GameSound_ToggleMusicVolume");
+
+		GameSound.SetGlobalMusicVolume (toggleMusicRatio);
+		GameSound.SetGlobalSoundVolume (toggleSoundRatio);
 
 		SetBtnColor ();
 	}
@@ -157,9 +168,14 @@ public class Game_Manager : MonoBehaviour {
 	IEnumerator delayStartGame()
 	{
 		GameSound.PlaySound (sfxUIclick1, true);
+		GetComponent<Animator> ().Play ("CameraAnimation");
 
-		menuGameObject.SetActive (false);
+		foreach (GameObject text in introUI_Texts_icons)
+			text.GetComponent<Animator> ().Play ("fadeOut");
+
+
 		yield return new WaitForSeconds (1);
+		menuGameObject.SetActive (false);
 		ingameUI.SetActive (true);
 		inMenu = false;
 		score = 0;
@@ -167,6 +183,7 @@ public class Game_Manager : MonoBehaviour {
 		GiveScore (0);
 		ChangeLife (0);
 		ship.StartGameShip ();
+		GetComponent<Animator> ().enabled = false;
 	}
 	IEnumerator delayEndGame()
 	{

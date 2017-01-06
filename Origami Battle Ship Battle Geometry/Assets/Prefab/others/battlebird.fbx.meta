@@ -1,0 +1,144 @@
+fileFormatVersion: 2
+guid: bf685f221361b3f4381a073df4063292
+timeCreated: 1483590549
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: Camera
+    100004: Cube
+    100006: Empty
+    100008: Empty.001
+    100010: Empty.002
+    100012: Empty.003
+    100014: Lamp
+    400000: //RootNode
+    400002: Camera
+    400004: Cube
+    400006: Empty
+    400008: Empty.001
+    400010: Empty.002
+    400012: Empty.003
+    400014: Lamp
+    2300000: Cube
+    3300000: Cube
+    4300000: Cube
+    7400000: Empty.003|CameraAction
+    7400002: Empty.003|CubeAction
+    7400004: Empty.003|Empty.001Action
+    7400006: Empty.003|Empty.002Action
+    7400008: Empty.003|Empty.003Action
+    7400010: Empty.003|EmptyAction
+    7400012: Empty.003|LampAction
+    7400014: Empty.002|CameraAction
+    7400016: Empty.002|CubeAction
+    7400018: Empty.002|Empty.001Action
+    7400020: Empty.002|Empty.002Action
+    7400022: Empty.002|Empty.003Action
+    7400024: Empty.002|EmptyAction
+    7400026: Empty.002|LampAction
+    7400028: Empty.001|CameraAction
+    7400030: Empty.001|CubeAction
+    7400032: Empty.001|Empty.001Action
+    7400034: Empty.001|Empty.002Action
+    7400036: Empty.001|Empty.003Action
+    7400038: Empty.001|EmptyAction
+    7400040: Empty.001|LampAction
+    7400042: Empty|CameraAction
+    7400044: Empty|CubeAction
+    7400046: Empty|Empty.001Action
+    7400048: Empty|Empty.002Action
+    7400050: Empty|Empty.003Action
+    7400052: Empty|EmptyAction
+    7400054: Empty|LampAction
+    7400056: Cube|CameraAction
+    7400058: Cube|CubeAction
+    7400060: Cube|Empty.001Action
+    7400062: Cube|Empty.002Action
+    7400064: Cube|Empty.003Action
+    7400066: Cube|EmptyAction
+    7400068: Cube|LampAction
+    7400070: Lamp|CameraAction
+    7400072: Lamp|CubeAction
+    7400074: Lamp|Empty.001Action
+    7400076: Lamp|Empty.002Action
+    7400078: Lamp|Empty.003Action
+    7400080: Lamp|EmptyAction
+    7400082: Lamp|LampAction
+    7400084: Camera|CameraAction
+    7400086: Camera|CubeAction
+    7400088: Camera|Empty.001Action
+    7400090: Camera|Empty.002Action
+    7400092: Camera|Empty.003Action
+    7400094: Camera|EmptyAction
+    7400096: Camera|LampAction
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 100
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

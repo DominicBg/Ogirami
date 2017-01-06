@@ -323,6 +323,51 @@ public static class GameSound
 		else
 			GameSound.PlaySound (clip);
 	}
+	public static void PlaySound(AudioClip clip, bool isStatic,int volume)
+	{
+		if (isStatic)
+		{
+			source.volume = ((float)volume/100) * soundVolume;
+			source.PlayOneShot (clip);
+		}
+		else
+			GameSound.PlaySound (clip);
+	}
+	public static void PlaySound(AudioClip clip, bool isStatic,float volume)
+	{
+		if (isStatic)
+		{
+			source.volume = volume * soundVolume;
+			source.PlayOneShot (clip);
+		}
+		else
+			GameSound.PlaySound (clip);
+	}
+
+	public static void PlaySound(AudioClip clip, int volume)
+	{
+		source.volume = Random.Range (0.9f, 1) * soundVolume * ((float)volume / 100);
+		source.pitch = Random.Range (0.9f, 1.1f);
+		source.PlayOneShot (clip);
+	}
+	public static void PlaySound(AudioClip clip, float volume)
+	{
+		source.volume = Random.Range (0.9f, 1) * soundVolume * volume;
+		source.pitch = Random.Range (0.9f, 1.1f);
+		source.PlayOneShot (clip);
+	}
+	public static void PlaySound(AudioClip[] clip, int volume)
+	{
+		source.volume = Random.Range (0.9f, 1) * soundVolume * ((float)volume / 100);
+		source.pitch = Random.Range (0.9f, 1.1f);
+		source.PlayOneShot (clip[Random.Range(0,clip.Length)]);
+	}
+	public static void PlaySound(AudioClip[] clip, float volume)
+	{
+		source.volume = Random.Range (0.9f, 1) * soundVolume * volume;
+		source.pitch = Random.Range (0.9f, 1.1f);
+				source.PlayOneShot (clip[Random.Range(0,clip.Length)]);
+	}
 	//specific audio source
 	public static void PlaySound(AudioSource _source, AudioClip clip)
 	{
@@ -648,10 +693,12 @@ public class MusicClass : MonoBehaviour
 		for (int i = 0; i < howManyChannel; i++)
 		{
 			channelGameObject.AddComponent<AudioSource> ();
-			channelGameObject.GetComponent<AudioSource> ().loop = true;
-
 		}
 		channels = channelGameObject.GetComponents<AudioSource> ();
+
+		foreach (AudioSource s in channels) 
+			s.loop = true;
+
 	}
 	public void UpdateAllVolume()
 	{

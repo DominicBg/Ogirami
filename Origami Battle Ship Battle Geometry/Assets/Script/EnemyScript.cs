@@ -9,10 +9,9 @@ public class EnemyScript : MonoBehaviour {
 	delegate Vector3 MovingType(); 
 	MovingType movingType;
 
-	[HideInInspector] public GameObject playerP;
-	float speedSin = 4;
+	float speedSin = 2;
 	float speedMov = 1;
-	float amplitudeSin = .5f;
+	float amplitudeSin = .01f;
 	[HideInInspector]public GameObject destination;
 
 	[HideInInspector]public GameObject radarTriangle;
@@ -25,9 +24,20 @@ public class EnemyScript : MonoBehaviour {
     // Use this for initialization
     void Start() {
 		movingType = MoveNormal;
-        ship = transform.parent.GetComponent<EnemySpawn>().shipP;
+		ship = Camera.main.GetComponent<Game_Manager> ().ship;
+
 		initiatlDistance = CalculateDistance ();
-		GetComponent<MeshRenderer> ().enabled = false;
+
+		if (isNormalEnemy) 
+		{
+			transform.GetChild (0).GetComponent<MeshRenderer> ().enabled = false;
+		//	transform.GetChild (0).GetComponent<MeshRenderer> ().material.SetColor ("_TintColor",HSBColor.ToColor(new HSBColor(Random.Range(.3f, .9f), .4f, 1)));
+		}
+		else
+		{
+			foreach (Transform g in gameObject.transform)
+				g.gameObject.SetActive (false);
+		}
 		//Spawn particles
 		GameObject particle = Instantiate(birthParticleAnimation,transform.position,Quaternion.identity) as GameObject;
 		particle.transform.SetParent (transform, true);
@@ -37,12 +47,20 @@ public class EnemyScript : MonoBehaviour {
 	IEnumerator delayAppear()
 	{
 		yield return new WaitForSeconds (0.5f);
-		GetComponent<MeshRenderer> ().enabled = true;
-	}
+		if (isNormalEnemy)
+			transform.GetChild(0).GetComponent<MeshRenderer> ().enabled = true;
+		else
+		{
+			foreach (Transform g in gameObject.transform)
+				g.gameObject.SetActive (true);
+		}	}
     // Update is called once per frame
     void Update() 
 	{
-		transform.LookAt (new Vector3(destination.transform.position.x,0,destination.transform.position.z));
+		if (isNormalEnemy)
+			transform.LookAt (new Vector3 (destination.transform.position.x, 0, destination.transform.position.z));
+		else
+			transform.eulerAngles += new Vector3(1,1,0) * Time.deltaTime * 300;
 
 		if (!World_Manager.canChange)
 			return;
@@ -56,6 +74,7 @@ public class EnemyScript : MonoBehaviour {
     void Mouvement()
     {
 		transform.position = Vector3.MoveTowards(transform.position,destination.transform.position,speedMov * Time.deltaTime);
+		transform.position += MoveSin ();
     }
 	/*
     void OnTriggerEnter(Collider col)

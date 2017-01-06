@@ -171,7 +171,7 @@ public class Ship : MonoBehaviour {
 		{	
 			GameEffect.Shake (Camera.main.gameObject, Mathf.Lerp (0, .2f, t_h));
 			GameEffect.FreezeFrame (Mathf.Lerp (0, .1f, t_h));
-			GameSound.PlaySound (sfxHardCanon);
+			GameSound.PlaySound (sfxHardCanon,0.5f);
 		}
 		else 
 		{
@@ -180,7 +180,7 @@ public class Ship : MonoBehaviour {
 		Rigidbody rigidBody = cannonBall.GetComponent<Rigidbody> ();
 
 		cannonBall.gameObject.SetActive (true);
-		cannonBall.transform.position = transform.position;
+		cannonBall.transform.position = transform.GetChild(0).position;
 
 		Physics.gravity = Vector3.up * gravity;
 		rigidBody.useGravity = true;
@@ -210,7 +210,7 @@ public class Ship : MonoBehaviour {
 		ColorGradient = HSBColor.ToColor(
 			new HSBColor
 			( 
-				Mathf.Lerp (0, .7f, t_h), .4f, 1)
+				Mathf.Lerp (.3f, .9f, t_h), .4f, 1)
 			);
 		light.color = ColorGradient;
 	
@@ -237,14 +237,14 @@ public class Ship : MonoBehaviour {
 
 			float simulationTime = i / (float)pathResolution * launchData.timeToTarget;
 			Vector3 displacement = launchData.initialVelocity * simulationTime + Vector3.up * gravity * simulationTime * simulationTime / 2f;
-			Vector3 drawPoint = transform.position + displacement;
+			Vector3 drawPoint = transform.GetChild(0).position + displacement;
 
 			//	Debug.DrawLine (previousDrawPoint, drawPoint, Color.red);
 
 			if (i == aimTargetIndex)
 				targetAim = drawPoint;
 
-			pathPoints [i].position = new Vector3(drawPoint.x,drawPoint.y,drawPoint.z + 5);
+			pathPoints [i].position = new Vector3(drawPoint.x - 1,drawPoint.y,drawPoint.z + 5);
 
 			pathPoints [i].size = 0.3f;
 			if (World_Manager.canChange) 
@@ -267,11 +267,11 @@ public class Ship : MonoBehaviour {
 	LaunchData CalculateLaunchData()
 	{
 
-		float displacementY = target.position.y - transform.position.y;
+		float displacementY = target.position.y - transform.GetChild(0).position.y;
 		Vector3 displacementXZ = new Vector3(
-			target.position.x - transform.position.x, 
+			target.position.x - transform.GetChild(0).position.x, 
 			0,
-			target.position.z - transform.position.z
+			target.position.z - transform.GetChild(0).position.z
 		);
 		float time =  (Mathf.Sqrt (-2 * h / gravity ) + Mathf.Sqrt(2*(displacementY - h)/gravity));
 		Vector3 velocityY = Vector3.up * Mathf.Sqrt (-2 * gravity * h);

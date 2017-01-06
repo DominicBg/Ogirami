@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawn : MonoBehaviour {
-    public Ship shipP;
+    Ship shipP;
 	public EnemyTracker enemyTracker;
     public GameObject enemyPrefab;
 	public GameObject radarPrefab;
 
     bool spawnDelay = true;
-    public GameObject playerRef;
 	public GameObject destinationPos;
     float timerSpawn = 3;
     int spawnCount;
@@ -18,7 +17,8 @@ public class EnemySpawn : MonoBehaviour {
 	Vector3 startPlayerPos;
 	// Use this for initialization
 	void Start () {
-		startPlayerPos = playerRef.transform.position;
+		shipP = Camera.main.GetComponent<Game_Manager> ().ship;
+		startPlayerPos = shipP.transform.position;
 	}
 
 	// Update is called once per frame
@@ -28,12 +28,11 @@ public class EnemySpawn : MonoBehaviour {
             spawnDelay = false;
 
 			//Enemy Spawn
-			GameObject enemy = Instantiate(enemyPrefab, new Vector3(Random.Range(-15,15), transform.position.y, Random.Range(5, 15)), Quaternion.identity);
+			GameObject enemy = Instantiate(enemyPrefab, new Vector3(Random.Range(-15,15), transform.position.y+0.2f, Random.Range(5, 10)), Quaternion.identity);
 			EnemyScript enemyScript = enemy.GetComponent<EnemyScript> ();
 			enemy.transform.SetParent (transform, true);
 
 			enemyScript.ship = shipP;
-			enemyScript.playerP = playerRef;
 			enemyScript.destination = destinationPos;
             //Radar spawn
 			Transform parent =  ((isNormalSpawner) ? enemyTracker.normalUI : enemyTracker.fractalUI);

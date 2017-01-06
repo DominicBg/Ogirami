@@ -7,12 +7,15 @@ public class CannonBall_Pooling : MonoBehaviour {
 	[SerializeField]int howManyCannonBall;
 	[SerializeField]GameObject prefabCannonBall;
 	GameObject[] cannonBallList;
-	public Ship shipRef;
 	int indexCpt = 0;
 	[SerializeField]Transform parent;
+	[HideInInspector]public Ship shipRef;
+
 	// Use this for initialization
 	void Start () 
 	{
+		shipRef = GetComponent<Ship> ();
+
 		cannonBallList = new GameObject[howManyCannonBall];
 		for (int i = 0; i < howManyCannonBall; i++)
 		{

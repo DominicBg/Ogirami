@@ -6,7 +6,6 @@ using UnityEngine;
 public class Cannonball: MonoBehaviour {
 	CannonBall_Pooling pooling;
 	Rigidbody rigidbody;
-
 	public bool isUsed = false;
 	///	///	///	///	///	///	///	///	///
 
