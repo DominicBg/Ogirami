@@ -10,7 +10,9 @@ public class CannonBall_Pooling : MonoBehaviour {
 	int indexCpt = 0;
 	[SerializeField]Transform parent;
 	[HideInInspector]public Ship shipRef;
-
+	[SerializeField]Transform UI_CannonBall_null;
+	[SerializeField]GameObject prefab_UI_CannonBall;
+	[SerializeField]float distanceBetweenUI_Cannonball;
 	// Use this for initialization
 	void Start () 
 	{
@@ -25,7 +27,13 @@ public class CannonBall_Pooling : MonoBehaviour {
 			cannonBallList[i] = Cannon;
 			cannonBallList [i].SetActive (false);
 
+			GameObject CannonUI = Instantiate (prefab_UI_CannonBall, UI_CannonBall_null.position, Quaternion.identity) as GameObject;
+			float x = ((howManyCannonBall - 1) / 2); //offset
+			CannonUI.transform.SetParent (UI_CannonBall_null, false);
+			CannonUI.transform.localPosition = new Vector3 ((i - x) * distanceBetweenUI_Cannonball, 0, 0);
+			CannonUI.name = "CannonUI_" + i;
 		}
+		AjustUI_Cannonball ();
 	}
 	/// <summary>
 	/// Returns the cannon ball. Return null if its on cooldown
@@ -41,7 +49,26 @@ public class CannonBall_Pooling : MonoBehaviour {
 			return null;
 
 		cannonBallList [indexCpt].GetComponent<Cannonball> ().isUsed = true;
+		AjustUI_Cannonball ();
+
 		return cannonBallList [indexCpt];
+	}
+	public void AjustUI_Cannonball()
+	{
+		int cptActive = 0;
+		foreach (GameObject go in cannonBallList) 
+		{
+			if (go.GetComponent<Cannonball> ().isUsed == false)
+				cptActive++;
+		}
+		for (int i = 0; i < UI_CannonBall_null.childCount; i++)
+		{
+			if (cptActive-1 >= i)
+				UI_CannonBall_null.GetChild(i).gameObject.SetActive (true);
+			else
+				UI_CannonBall_null.GetChild(i).gameObject.SetActive (false);
+			
+		}
 	}
 
 }

@@ -8,6 +8,9 @@ public class Wave : MonoBehaviour {
 	Vector3[] vertices;
 	Vector3[] normals;
 
+	Vector3[] verticesReset;
+	Vector3[] normalsReset;
+
 	delegate float WaveFunctionDelegate(int i);
 	WaveFunctionDelegate WaveFunction;
 
@@ -15,10 +18,19 @@ public class Wave : MonoBehaviour {
 	void Start () 
 	{
 		vertices = Water.mesh.vertices;
+		verticesReset = vertices;
 		normals = Water.mesh.normals;
+		normalsReset = normals;
 		WaveFunction = SinWave;
+
+
 	}
-	
+	public void ResetWave()
+	{
+		vertices = verticesReset;
+		normals = normalsReset;
+		Water.mesh.vertices = vertices;
+	}
 	// Update is called once per frame
 	void Update ()
 	{

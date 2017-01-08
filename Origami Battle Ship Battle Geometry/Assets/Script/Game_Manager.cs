@@ -7,7 +7,6 @@ public class Game_Manager : MonoBehaviour {
 
 	public int maxLife = 5;
 	public int currentLife;
-	public Text currentLifeText;
 
 	public int score;
 	public Text scoreText;
@@ -15,17 +14,21 @@ public class Game_Manager : MonoBehaviour {
 
 	[SerializeField]Image audioIcon;
 	[SerializeField]Image musicIcon;
+	[SerializeField]GameObject pressStart;
 
+	public static bool ResetSpawnTimer = false;
 	public static bool inMenu = true;
+	bool preIngame = false;
 	public GameObject menuGameObject;
 	public GameObject ingameUI;
 	public GameObject creditUI;
+	public GameObject scoreUI;
 
-	float toggleSoundRatio;
-	float toggleMusicRatio;
 
 	[SerializeField]GameObject[] introUI_Texts_icons;
-
+	[SerializeField]Transform Arc;
+	[SerializeField]Color lifeOrbColor;
+	[SerializeField]Color lifeOrbColorDestroyed;
 
 	public Ship ship;
 	[SerializeField]AudioClip sfxDamageFromNormal;
@@ -33,54 +36,68 @@ public class Game_Manager : MonoBehaviour {
 
 	[SerializeField]AudioClip sfxUIclick1;
 	[SerializeField]AudioClip sfxUIclick2;
+	[SerializeField]AudioClip sfxUIstartGame;
 	[SerializeField]AudioClip sfxUIDeath;
+	[SerializeField]AudioClip sfxUIShutDown;
 
 	[SerializeField]AudioClip musicNormal;
 	[SerializeField]AudioClip musicFractal;
 	// Use this for initialization
 
-	public Vector3 StartPositionCamera;
-	public Vector3 EndPositionCamera;
 
 
 
 	void Start ()
 	{
 		GameSound.EnableAudio ();
-		GameSound.EnableToggleSoundVolume (3);
-		GameSound.EnableToggleMusicVolume (3);
 
 		GameSound.SetMusicChannel (2);
 		GameSound.SetMusicIntoChannel (musicNormal,0,1,true);
 		GameSound.SetMusicIntoChannel (musicFractal,1,0,true);
+		GameSound.EnableToggleMusicVolume (3);
+		GameSound.EnableToggleSoundVolume (3);
 
 		LoadToggleVolume ();
 		StarMenu ();
 	}
+	void Update()
+	{
+		if (inMenu) 
+		{
+			Color color =  HSBColor.ToColor
+			(
+				new HSBColor
+				( 
+					Mathf.Lerp (.6f, 1f, (Mathf.Sin(Time.timeSinceLevelLoad * 0.2f) + 1) / 2),
+					.4f,
+					1f
+				)
+			);
+			Camera.main.backgroundColor = color;
+			ship.light.color = color;
+		}
+	}
 	public void ToggleSoundVolume()
 	{
-		toggleSoundRatio = GameSound.ToggleSoundVolume();
+		GameSound.ToggleSoundVolume();
 		GameSound.PlaySound (sfxDamageFromNormal, true);
 		SetBtnColor ();
-		SaveToggleVolume ();
+	//	SaveToggleVolume ();
 	}
 	public void ToggleMusicVolume()
 	{
-		toggleMusicRatio = GameSound.ToggleMusicVolume();
+		GameSound.ToggleMusicVolume();
 		SetBtnColor ();
-		SaveToggleVolume ();
+	//	SaveToggleVolume ();
 	}
 	void SetBtnColor()
 	{
-		audioIcon.color = new Color (1, 1, 1, toggleSoundRatio);
-		musicIcon.color = new Color (1, 1, 1, toggleMusicRatio);
+		float t_sound = GameSound.GetToggleValueSound();
+		float t_music = GameSound.GetToggleValueMusic();
 
-	}
-	void SaveToggleVolume()
-	{
-		PlayerPrefs.SetFloat ("GameSound_ToggleSoundVolume", toggleSoundRatio);
-		PlayerPrefs.SetFloat ("GameSound_ToggleMusicVolume", toggleMusicRatio);
-		PlayerPrefs.Save ();
+		audioIcon.color = new Color (t_sound, t_sound, t_sound, 1);
+		musicIcon.color = new Color (t_music, t_music, t_music, 1);
+
 	}
 	void LoadToggleVolume()
 	{
@@ -91,12 +108,6 @@ public class Game_Manager : MonoBehaviour {
 			PlayerPrefs.SetFloat ("GameSound_ToggleMusicVolume", 1);
 			PlayerPrefs.Save ();
 		}
-
-		toggleSoundRatio = PlayerPrefs.GetFloat ("GameSound_ToggleSoundVolume");
-		toggleMusicRatio = PlayerPrefs.GetFloat ("GameSound_ToggleMusicVolume");
-
-		GameSound.SetGlobalMusicVolume (toggleMusicRatio);
-		GameSound.SetGlobalSoundVolume (toggleSoundRatio);
 
 		SetBtnColor ();
 	}
@@ -120,10 +131,15 @@ public class Game_Manager : MonoBehaviour {
 		ingameUI.SetActive (false);
 		inMenu = true;
 		highScoreText.text = PlayerPrefs.GetInt ("Highscore").ToString ();
+		scoreUI.SetActive (false);
+		pressStart.SetActive (true);
+
+		preIngame = false;
 	}
 	public void StartGame()
 	{	
-		StartCoroutine (delayStartGame ());
+		if(!preIngame)
+			StartCoroutine (delayStartGame ());
 	}
 
 	public void GiveScore(int points)
@@ -144,7 +160,6 @@ public class Game_Manager : MonoBehaviour {
 	public void ChangeLife(int damage)
 	{
 		currentLife += damage;
-		currentLifeText.text = currentLife.ToString();
 
 
 		if (currentLife <= 0) 
@@ -153,6 +168,17 @@ public class Game_Manager : MonoBehaviour {
 			CompareHighScore ();
 			StartCoroutine (delayEndGame ());
 			//StarMenu ();
+		}
+			
+		for (int i = 0; i < Arc.childCount; i++)
+		{
+			if (currentLife-1 >= i)//got the life
+				Arc.GetChild(i).GetComponent<MeshRenderer> ().material.SetColor ("_Color",lifeOrbColor);
+				//Arc.GetChild(i).gameObject.SetActive (true);
+			else
+				Arc.GetChild(i).GetComponent<MeshRenderer> ().material.SetColor ("_Color", lifeOrbColorDestroyed);
+				//Arc.GetChild(i).gameObject.SetActive (false);
+
 		}
 
 	}
@@ -167,32 +193,71 @@ public class Game_Manager : MonoBehaviour {
 
 	IEnumerator delayStartGame()
 	{
-		GameSound.PlaySound (sfxUIclick1, true);
+		preIngame = true;
+		ship.ShutDown (false);
+
+		pressStart.SetActive (false);
+		GameSound.PlaySound (sfxUIstartGame, true);
+		GameEffect.Shake ();
 		GetComponent<Animator> ().Play ("CameraAnimation");
 
 		foreach (GameObject text in introUI_Texts_icons)
 			text.GetComponent<Animator> ().Play ("fadeOut");
 
+		yield return new WaitForSeconds (.2f);
 
-		yield return new WaitForSeconds (1);
-		menuGameObject.SetActive (false);
-		ingameUI.SetActive (true);
-		inMenu = false;
+		GameSound.PlaySound (GetComponent<World_Manager>().sfxSwitchWorld, true,100,1);
+
 		score = 0;
 		currentLife = maxLife;
 		GiveScore (0);
 		ChangeLife (0);
+
+
+		yield return new WaitForSeconds (1);
+		GameSound.PlaySound (GetComponent<World_Manager>().sfxSwitchWorld, true,.5f,1.2f);
+		yield return new WaitForSeconds (1);
+		inMenu = false;
+
+		menuGameObject.SetActive (false);
+		ingameUI.SetActive (true);
+	
 		ship.StartGameShip ();
 		GetComponent<Animator> ().enabled = false;
+		ResetSpawnTimer = true;
 	}
 	IEnumerator delayEndGame()
 	{
+		
 		ingameUI.SetActive (false);
 		inMenu = true;
-		GameEffect.FlashCamera (Color.black, 1);
 		ship.EndGameShip ();
 		GameSound.PlaySound (sfxUIDeath, true);
+
+		yield return new WaitForSeconds (1);
+	
+		GameSound.PlaySound (sfxUIShutDown, true);
+		ship.ShutDown (true);
+		yield return new WaitForSeconds (2);
+		GameEffect.FlashCamera (Color.black,1);
+
+		yield return new WaitForSeconds (.5f);
+		GetComponent<World_Manager>().returnToNormal ();
+		GetComponent<Wave>().ResetWave ();
+		Camera.main.GetComponent<Animator> ().enabled = true;
+		Camera.main.GetComponent<Animator> ().Play ("cameraIdle");
+		yield return new WaitForSeconds (1);
+		ShowCurrentAndBestScore ();
 		yield return new WaitForSeconds (3);
+		foreach (Transform text in scoreUI.transform)
+			text.GetComponent<Animator> ().Play ("fadeOut");
+		yield return new WaitForSeconds (1);
 		StarMenu ();
+	}
+	void ShowCurrentAndBestScore()
+	{
+		scoreUI.SetActive (true);
+		scoreUI.transform.GetChild(0).GetComponent<Text>().text = "Highest Score \n" + PlayerPrefs.GetInt ("Highscore").ToString ();
+		scoreUI.transform.GetChild(1).GetComponent<Text>().text =  "Score \n" + score.ToString();
 	}
 }

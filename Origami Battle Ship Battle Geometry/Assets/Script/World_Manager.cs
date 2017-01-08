@@ -18,6 +18,9 @@ public class World_Manager : MonoBehaviour {
 	[SerializeField]GameObject NormalCloud;
 
 
+	[SerializeField]Transform enemyContainerNormal;
+	[SerializeField]Transform enemyContainerFractal;
+
 	[SerializeField]Color COLORNORMAL;
 	[SerializeField]Color COLORFRACTAL;
 
@@ -26,7 +29,8 @@ public class World_Manager : MonoBehaviour {
 	float z_startRotation;
 	float z_endRotation;
 
-	[SerializeField] AudioClip sfxSwitchWorld;
+	public AudioClip sfxSwitchWorld;
+
 
 	public void SwitchWorld()
 	{
@@ -95,6 +99,12 @@ public class World_Manager : MonoBehaviour {
        //     Camera.main.GetComponent<ScreenOverlay>().enabled = false;
 			FractalWall.SetActive(false);
 			NormalCloud.SetActive (true);
+
+			foreach (Transform enemy in enemyContainerNormal)
+				enemy.GetComponent<EnemyScript> ().ShowEnemy (true);
+			foreach (Transform enemy in enemyContainerFractal) 
+				enemy.GetComponent<EnemyScript> ().ShowEnemy (false);
+			
         }
         else
         {
@@ -105,6 +115,10 @@ public class World_Manager : MonoBehaviour {
 			NormalCloud.SetActive (false);
 
 
+			foreach (Transform enemy in enemyContainerNormal)
+				enemy.GetComponent<EnemyScript> ().ShowEnemy (false);
+			foreach (Transform enemy in enemyContainerFractal) 
+				enemy.GetComponent<EnemyScript> ().ShowEnemy (true);
         }
            
 		
@@ -126,6 +140,22 @@ public class World_Manager : MonoBehaviour {
 
 		}
 	}
+	public void returnToNormal()
+	{
+		if (currentWorld == EnumWorld.Fractal) 
+		{
+			
+			Null_World.eulerAngles = new Vector3 (
+				Null_World.eulerAngles.x,
+				Null_World.eulerAngles.y,
+				Null_World.eulerAngles.z + 180
+			);
+			currentWorld = EnumWorld.Normal;
+			ChangeCameraBackGround ();
+			GameSound.SetTransition (0, 1, 1);
+			GameSound.SetTransition (1, 0, 1);
 
+		}
+	}
 
 }

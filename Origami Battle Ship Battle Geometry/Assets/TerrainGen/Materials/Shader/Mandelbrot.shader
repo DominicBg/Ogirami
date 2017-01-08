@@ -5,15 +5,18 @@
 //		Center ("mandelbrot Center position (XY)", Vector) = (0.5,0.5,0,0)
 		InnerColor ("Color 1 (inner)", Color) = (1,0,0,1)
 		OuterColor1 ("Color 1 (outer)", Color) = (0,1,0,1)
+
 		OuterColor2 ("Color 2 (outer)", Color) = (0,0,1,1)
 		
 		Creal ("Mandelbrot Step", Float) = -0.0002
 		Cimag ("Mandelbrot Shape", Float) = 0.7383
-
+		 
 
 	}
 	SubShader {
+
 		Pass {
+
 			CGPROGRAM
 			#pragma glsl
 			#pragma vertex vert_img
@@ -50,7 +53,8 @@
 				
 				float4 color;
 				float4 alpha = (iter * 0.05) - floor(iter * 0.05);
-				
+
+
 				if (r2 < 4.0)
 				    color = InnerColor;
 				else 

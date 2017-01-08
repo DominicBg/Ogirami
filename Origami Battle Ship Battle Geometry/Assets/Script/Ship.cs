@@ -30,13 +30,13 @@ public class Ship : MonoBehaviour {
 	public bool drawingPath;
 
 	bool readyToLaunch;
-
+	bool shuttingDown = false;
 	//Path and such
 	public int pathResolution;
 	[SerializeField]ParticleSystem.Particle[] pathPoints;
 	ParticleSystem pathParticleSystem;
 
-	[SerializeField]Light light;
+	public Light light;
 	Color ColorGradient;
 	float currentH;
 
@@ -51,6 +51,7 @@ public class Ship : MonoBehaviour {
 	//AUDIO
 	[SerializeField]AudioClip[] sfxSoftCanon;
 	[SerializeField]AudioClip[] sfxHardCanon;
+	[SerializeField]AudioClip sfxEmptyCanon;
 
 
 
@@ -72,12 +73,18 @@ public class Ship : MonoBehaviour {
 	public void EndGameShip()
 	{
 		target.gameObject.SetActive (false);
+		ErasePath ();
 	}
 	// Update is called once per frame
 	void Update ()
 	{
 
 		floatingWater ();
+
+		if (shuttingDown)
+			Cannon.transform.eulerAngles += new Vector3 (0, 125 * Time.deltaTime, 0);
+
+
 
 		if (Game_Manager.inMenu)
 			return;
@@ -99,12 +106,17 @@ public class Ship : MonoBehaviour {
 
 		if (Input.GetMouseButtonDown (0)) 
 			t_h = 0;
-	}
 
+
+	}
+	public void ShutDown(bool isShuttingDown)
+	{
+		shuttingDown = isShuttingDown;
+	}
 	void floatingWater()
 	{
 		transform.position = _startPosition + new Vector3 (0, 0.2f * Mathf.Sin ( Time.time), 0);
-		target.transform.eulerAngles += Vector3.up * Time.deltaTime * 20;
+		target.transform.eulerAngles += Vector3.up * Time.deltaTime * 100;
 	}
 	void FingerControl()
 	{
@@ -140,14 +152,13 @@ public class Ship : MonoBehaviour {
 			Vector3 position = new Vector3 
 				(
 					Mathf.Lerp(posMinX,posMaxX,x),
-					-1,
+					0,
 					Mathf.Lerp(posMinY,posMaxY,y)
 				);
 
 			target.transform.position = position;
 
 			//Cannon.transform.LookAt (target);
-			Cannon.transform.LookAt (targetAim);
 		}
 	}
 	void ErasePath()
@@ -161,8 +172,10 @@ public class Ship : MonoBehaviour {
 		cannonBall = pooling.returnCannonBall ();
 
 		if (cannonBall == null)
+		{
+			GameSound.PlaySound (sfxEmptyCanon,true);
 			return;
-
+		}
 		/*
 		if (Camera.main.gameObject.GetComponent<Shake> () == null)
 			Camera.main.gameObject.AddComponent<Shake> ();
@@ -180,8 +193,7 @@ public class Ship : MonoBehaviour {
 		Rigidbody rigidBody = cannonBall.GetComponent<Rigidbody> ();
 
 		cannonBall.gameObject.SetActive (true);
-		cannonBall.transform.position = transform.GetChild(0).position;
-
+		cannonBall.transform.position = transform.GetChild(0).GetChild(0).position;
 		Physics.gravity = Vector3.up * gravity;
 		rigidBody.useGravity = true;
 		rigidBody.velocity = CalculateLaunchData ().initialVelocity;
@@ -190,6 +202,7 @@ public class Ship : MonoBehaviour {
 
 
 		Cannon.transform.GetComponentInChildren<ParticleSystem> ().Play ();
+		Cannon.transform.GetChild(0).GetComponent<Animator> ().Play ("CannonFire");
 		//remove aim
 		ErasePath();
 		currentH = 0;
@@ -222,15 +235,27 @@ public class Ship : MonoBehaviour {
 
 	void DrawPath()
 	{
-		
-		
+
 		LightColorUpdate ();
+
+		if (GameMath.DistanceXZ (gameObject, target.gameObject) < 5) 
+		{
+			ErasePath ();
+			Cannon.transform.LookAt(
+				new Vector3 (
+					target.transform.position.x,
+					target.transform.position.y  + Mathf.Lerp (10, 0, t_h),
+					target.transform.position.z
+				)
+			);
+			return;
+		}
 
 		LaunchData launchData = CalculateLaunchData ();
 		//Vector3 previousDrawPoint = cannonBall.position;
 
 		pathPoints = new ParticleSystem.Particle[pathResolution];
-		int aimTargetIndex = pathResolution / 4;
+		int aimTargetIndex = 4;
 		for (int i = 2; i < pathResolution; i++) 
 		{
 
@@ -244,7 +269,7 @@ public class Ship : MonoBehaviour {
 			if (i == aimTargetIndex)
 				targetAim = drawPoint;
 
-			pathPoints [i].position = new Vector3(drawPoint.x - 1,drawPoint.y,drawPoint.z + 5);
+			pathPoints [i].position = new Vector3(drawPoint.x - 0.6f,drawPoint.y,drawPoint.z + 5);
 
 			pathPoints [i].size = 0.3f;
 			if (World_Manager.canChange) 
@@ -262,6 +287,7 @@ public class Ship : MonoBehaviour {
 			//previousDrawPoint = drawPoint;
 		}
 		pathParticleSystem.SetParticles(pathPoints, pathPoints.Length);
+		Cannon.transform.LookAt (targetAim);
 
 	}
 	LaunchData CalculateLaunchData()

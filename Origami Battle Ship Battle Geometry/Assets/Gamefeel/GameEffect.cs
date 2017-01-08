@@ -15,7 +15,14 @@ public static class GameEffect {
 	{
 		ShakeEffect (obj, 1, .2f);
 	}
+	/// <summary>
+	/// Shake the camera with base settings.
+	/// </summary>
+	public static void Shake()
+	{
+		ShakeEffect (Camera.main.gameObject, 1, .2f);
 
+	}
 	/// <summary>
 	/// Shake the specified obj and intensity with default time value of 0.2.
 	/// </summary>
@@ -171,8 +178,8 @@ public static class GameSound
 	static float musicVolume = 1;
 
 	//toggle
-	static float toggleState = 0;
-	static float toggleRatio = 0;
+	static float toggleSoundState = 0;
+	static float toggleSoundRatio = 0;
 
 	//toggle
 	static float toggleMusicState = 0;
@@ -208,15 +215,24 @@ public static class GameSound
 		musicVolume = volume;
 		musicSource.globalMusicVolume = musicVolume;
 		musicSource.UpdateAllVolume ();
-
 	}
 	public static void EnableToggleMusicVolume(int howManyState)
 	{
-		toggleMusicState = 1;
+		if (PlayerPrefs.GetFloat ("GameSound_ToggleMusicVolume_init") == 0) {
+			PlayerPrefs.SetFloat ("GameSound_ToggleMusicVolume_init", 1);
+			toggleMusicState = 1;
+
+		} 
+		else 
+		{
+			toggleMusicState =PlayerPrefs.GetFloat ("GameSound_ToggleMusicVolume") ;
+		}
 		toggleMusicRatio = 1 / (float)howManyState;
 		musicVolume = toggleMusicState;
+		SetGlobalMusicVolume (musicVolume);
+
 	}
-	public static float ToggleMusicVolume()
+	public static void ToggleMusicVolume()
 	{
 		toggleMusicState -= toggleMusicRatio;
 		if (toggleMusicState < -.1f)
@@ -225,7 +241,17 @@ public static class GameSound
 		musicVolume = toggleMusicState;
 
 		SetGlobalMusicVolume (musicVolume);
+		PlayerPrefs.SetFloat ("GameSound_ToggleMusicVolume",toggleMusicState);
+		PlayerPrefs.Save ();
+	}
+	public static float GetToggleValueMusic()
+	{
 		return toggleMusicState;
+
+	}
+	public static float GetToggleValueSound()
+	{
+		return toggleSoundState;
 	}
 	public static void SetMusicChannel(int howManychannel)
 	{
@@ -275,18 +301,27 @@ public static class GameSound
 
 	public static void EnableToggleSoundVolume(int howManyState)
 	{
-		toggleState = 1;
-		toggleRatio = 1 / (float)howManyState;
-		soundVolume = toggleState;
-	}
-	public static float ToggleSoundVolume()
-	{
-		toggleState -= toggleRatio;
-		if (toggleState < -.1f)
-			toggleState = 1;
+		if (PlayerPrefs.GetFloat ("GameSound_ToggleSound_init") == 0) {
+			PlayerPrefs.SetFloat ("GameSound_ToggleSound_init", 1);
+			toggleSoundState = 1;
+		} 
+		else 
+		{
+			toggleSoundState =PlayerPrefs.GetFloat ("GameSound_ToggleSoundVolume") ;
+		}
 
-		soundVolume = toggleState;
-		return toggleState;
+		toggleSoundRatio = 1 / (float)howManyState;
+		soundVolume = toggleSoundState;
+	}
+	public static void ToggleSoundVolume()
+	{
+		toggleSoundState -= toggleSoundRatio;
+		if (toggleSoundState < -.1f)
+			toggleSoundState = 1;
+
+		soundVolume = toggleSoundState;
+		PlayerPrefs.SetFloat ("GameSound_ToggleSoundVolume",toggleSoundState);
+		PlayerPrefs.Save ();
 	}
 	public static void PlaySound(AudioClip clip)
 	{
@@ -318,6 +353,7 @@ public static class GameSound
 		if (isStatic)
 		{
 			source.volume = soundVolume;
+			source.pitch = 1;
 			source.PlayOneShot (clip);
 		}
 		else
@@ -338,6 +374,28 @@ public static class GameSound
 		if (isStatic)
 		{
 			source.volume = volume * soundVolume;
+			source.PlayOneShot (clip);
+		}
+		else
+			GameSound.PlaySound (clip);
+	}
+	public static void PlaySound(AudioClip clip, bool isStatic,int volume,float pitch)
+	{
+		if (isStatic)
+		{
+			source.volume = ((float)volume/100) * soundVolume;
+			source.pitch = pitch;
+			source.PlayOneShot (clip);
+		}
+		else
+			GameSound.PlaySound (clip);
+	}
+	public static void PlaySound(AudioClip clip, bool isStatic,float volume,float pitch)
+	{
+		if (isStatic)
+		{
+			source.volume = volume * soundVolume;
+			source.pitch = pitch;
 			source.PlayOneShot (clip);
 		}
 		else
@@ -452,6 +510,72 @@ public static class GameMath
 		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	}
 
+	public static float Distance3D(GameObject object1,GameObject object2)
+	{
+			return Mathf.Sqrt
+				( 
+				Mathf.Pow((object1.transform.position.x - object2.transform.position.x), 2) +
+				Mathf.Pow((object1.transform.position.y - object2.transform.position.y), 2) +
+				Mathf.Pow((object1.transform.position.z - object2.transform.position.z), 2)
+				);
+	}
+	public static float Distance3D(Transform transform1,Transform transform2)
+	{
+		return Mathf.Sqrt
+			( 
+				Mathf.Pow((transform1.position.x - transform2.position.x), 2) +
+				Mathf.Pow((transform1.position.y - transform2.position.y), 2) +
+				Mathf.Pow((transform1.position.z - transform2.position.z), 2)
+			);
+	}
+	public static float DistanceXY(GameObject object1,GameObject object2)
+	{
+		return Mathf.Sqrt
+			( 
+				Mathf.Pow((object1.transform.position.x - object2.transform.position.x), 2) +
+				Mathf.Pow((object1.transform.position.y - object2.transform.position.y), 2)
+			);
+	}
+	public static float DistanceXY(Transform transform1,Transform transform2)
+	{
+		return Mathf.Sqrt
+			( 
+				Mathf.Pow((transform1.position.x - transform2.position.x), 2) +
+				Mathf.Pow((transform1.position.y - transform2.position.y), 2)
+			);
+	}
+	public static float DistanceXZ(GameObject object1,GameObject object2)
+	{
+		return Mathf.Sqrt
+			( 
+				Mathf.Pow((object1.transform.position.x - object2.transform.position.x), 2) +
+				Mathf.Pow((object1.transform.position.z - object2.transform.position.z), 2)
+			);
+	}
+	public static float DistanceXZ(Transform transform1,Transform transform2)
+	{
+		return Mathf.Sqrt
+			( 
+				Mathf.Pow((transform1.position.x - transform2.position.x), 2) +
+				Mathf.Pow((transform1.position.z - transform2.position.z), 2)
+			);
+	}
+	public static float DistanceYZ(GameObject object1,GameObject object2)
+	{
+		return Mathf.Sqrt
+			( 
+				Mathf.Pow((object1.transform.position.y - object2.transform.position.y), 2) +
+				Mathf.Pow((object1.transform.position.z - object2.transform.position.z), 2)
+			);
+	}
+	public static float DistanceYZ(Transform transform1,Transform transform2)
+	{
+		return Mathf.Sqrt
+			( 
+				Mathf.Pow((transform1.position.y - transform2.position.y), 2) +
+				Mathf.Pow((transform1.position.z - transform2.position.z), 2)
+			);
+	}
 }
 
 public class FreezeFrameClass : MonoBehaviour {
@@ -702,7 +826,6 @@ public class MusicClass : MonoBehaviour
 	}
 	public void UpdateAllVolume()
 	{
-		Debug.Log (globalMusicVolume);
 		for (int i = 0; i < channels.Length; i++)
 			channels[i].volume = volumes[i] * globalMusicVolume;
 	}

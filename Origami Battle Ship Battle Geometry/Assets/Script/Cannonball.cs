@@ -7,6 +7,7 @@ public class Cannonball: MonoBehaviour {
 	CannonBall_Pooling pooling;
 	Rigidbody rigidbody;
 	public bool isUsed = false;
+	public int cannonBall_index = 0;
 	///	///	///	///	///	///	///	///	///
 
 	void Start()
@@ -19,8 +20,6 @@ public class Cannonball: MonoBehaviour {
 	}
 
 	///	///	///	///	///	///	///	///	///
-
-
 	void Update ()
 	{
 		testReturnPooling ();
@@ -36,6 +35,8 @@ public class Cannonball: MonoBehaviour {
 			rigidbody.velocity = new Vector3 (0, 0, 0);
 			isUsed = false;
 			gameObject.SetActive (false);
+			pooling.AjustUI_Cannonball ();
+
 		}
 
 	}
@@ -44,6 +45,7 @@ public class Cannonball: MonoBehaviour {
     {
 		if(col.gameObject.tag == "Ennemy" && rigidbody.useGravity == true)
         {
+			pooling.AjustUI_Cannonball ();
 			//add particle, give points
 			pooling.shipRef.gameManager.GiveScore(1);
 			col.GetComponent<EnemyScript> ().Death ();

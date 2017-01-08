@@ -23,12 +23,21 @@ public class EnemySpawn : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+
+		if (Game_Manager.ResetSpawnTimer) 
+		{
+			timerSpawn = 3;
+			spawnCount = 0;
+			Game_Manager.ResetSpawnTimer = false;
+			Debug.Log ("reset : " + timerSpawn);
+		}
+
 		if(spawnDelay && !Game_Manager.inMenu && World_Manager.canChange)
         {
             spawnDelay = false;
 
 			//Enemy Spawn
-			GameObject enemy = Instantiate(enemyPrefab, new Vector3(Random.Range(-15,15), transform.position.y+0.2f, Random.Range(5, 10)), Quaternion.identity);
+			GameObject enemy = Instantiate(enemyPrefab, new Vector3(Random.Range(-15,15), transform.position.y, Random.Range(5, 10)), Quaternion.identity);
 			EnemyScript enemyScript = enemy.GetComponent<EnemyScript> ();
 			enemy.transform.SetParent (transform, true);
 
@@ -62,4 +71,6 @@ public class EnemySpawn : MonoBehaviour {
         yield return new WaitForSeconds(timerSpawn);
         spawnDelay = true;
     }
+
+
 }

@@ -16,7 +16,7 @@ public class EnemyScript : MonoBehaviour {
 
 	[HideInInspector]public GameObject radarTriangle;
 	[HideInInspector]public float initiatlDistance;
-	[HideInInspector]public bool isNormalEnemy;
+	public bool isNormalEnemy;
 
 	[SerializeField] GameObject birthParticleAnimation;
 	[SerializeField] GameObject deathParticleAnimation;
@@ -28,32 +28,37 @@ public class EnemyScript : MonoBehaviour {
 
 		initiatlDistance = CalculateDistance ();
 
-		if (isNormalEnemy) 
-		{
-			transform.GetChild (0).GetComponent<MeshRenderer> ().enabled = false;
-		//	transform.GetChild (0).GetComponent<MeshRenderer> ().material.SetColor ("_TintColor",HSBColor.ToColor(new HSBColor(Random.Range(.3f, .9f), .4f, 1)));
-		}
-		else
-		{
-			foreach (Transform g in gameObject.transform)
-				g.gameObject.SetActive (false);
-		}
-		//Spawn particles
-		GameObject particle = Instantiate(birthParticleAnimation,transform.position,Quaternion.identity) as GameObject;
-		particle.transform.SetParent (transform, true);
-		Destroy (particle, 2);
+		ShowEnemy (false);
+		SpawnParticle (birthParticleAnimation,true);
+
+
+
 		StartCoroutine (delayAppear ());
     }
+	void SpawnParticle(GameObject whichParticle,bool setParent)
+	{
+		if (isEnemyFromCurrentWorld()) 
+		{
+			GameObject particle = Instantiate(whichParticle,transform.position,Quaternion.identity) as GameObject;
+			if(setParent)
+				particle.transform.SetParent (transform, true);
+			Destroy (particle, 2);
+		}
+	}
+	bool isEnemyFromCurrentWorld()
+	{
+		if((World_Manager.currentWorld == World_Manager.EnumWorld.Normal && isNormalEnemy) ||
+			(World_Manager.currentWorld == World_Manager.EnumWorld.Fractal && !isNormalEnemy))
+			return true;
+
+		return false;
+	}
 	IEnumerator delayAppear()
 	{
 		yield return new WaitForSeconds (0.5f);
-		if (isNormalEnemy)
-			transform.GetChild(0).GetComponent<MeshRenderer> ().enabled = true;
-		else
-		{
-			foreach (Transform g in gameObject.transform)
-				g.gameObject.SetActive (true);
-		}	}
+		ShowEnemy (isEnemyFromCurrentWorld());
+
+	}
     // Update is called once per frame
     void Update() 
 	{
@@ -90,6 +95,19 @@ public class EnemyScript : MonoBehaviour {
 	*/
 
 
+	public void ShowEnemy(bool show)
+	{
+		if (isNormalEnemy)
+			transform.GetChild(0).GetComponent<MeshRenderer> ().enabled = show;
+		else
+		{
+			transform.GetComponent<MeshRenderer> ().enabled = show;
+
+			foreach (Transform g in gameObject.transform)
+				g.gameObject.SetActive (show);
+		}	
+	}
+
 	void TestCollision()
 	{
 		if (Mathf.Abs(transform.position.x - destination.transform.position.x) < 2 	&& Mathf.Abs(transform.position.z - destination.transform.position.z) < 2) 
@@ -114,20 +132,12 @@ public class EnemyScript : MonoBehaviour {
 	public void Death()
 	{
 		GameSound.PlaySound (sfxDeath,.2f,.2f);
-		//	GameObject particle = Instantiate(particle, gameObjec.transform.position,Quaternion.identity) as gameObject;
-		GameObject particle = Instantiate(deathParticleAnimation,transform.position,Quaternion.identity) as GameObject;
-		particle.transform.SetParent (transform.parent.parent, true);
-		Destroy (particle, 2);
+		SpawnParticle(deathParticleAnimation,false);
 		Destroy (radarTriangle);
 		Destroy (gameObject);
-
 	}
 	public float CalculateDistance()
 	{
-		return Mathf.Sqrt
-		( 
-			Mathf.Pow((transform.position.x - destination.transform.position.x), 2) +
-			Mathf.Pow((transform.position.z - destination.transform.position.z), 2)
-		);
+		return GameMath.DistanceXZ (gameObject, destination);
 	}
 }
