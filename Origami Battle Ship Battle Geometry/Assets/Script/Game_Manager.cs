@@ -18,10 +18,13 @@ public class Game_Manager : MonoBehaviour {
 
 	public static bool inMenu = true;
 	bool preIngame = false;
-	public GameObject menuGameObject;
+	public GameObject menuGameObject, achievementsGameObject;
 	public GameObject ingameUI;
 	public GameObject creditUI;
-	public GameObject scoreUI;
+	public GameObject scoreUI, achieveUI;
+    public GameObject circleBonus;
+    public GameObject lockedAchieve, lockedCont;
+    public Transform refAchieve;
 	[SerializeField]EnemySpawn[] spawners;
 
 	[SerializeField]GameObject[] introUI_Texts_icons;
@@ -50,7 +53,7 @@ public class Game_Manager : MonoBehaviour {
 	void Start ()
 	{
 		GameSound.EnableAudio ();
-
+        PlayerPrefs.DeleteAll();
 		GameSound.SetMusicChannel (2);
 		GameSound.SetMusicIntoChannel (musicNormal,0,1,true);
 		GameSound.SetMusicIntoChannel (musicFractal,1,0,true);
@@ -123,15 +126,55 @@ public class Game_Manager : MonoBehaviour {
 		creditUI.SetActive (false);
 		GameSound.PlaySound (sfxUIclick2, true);
 
-	}
-	// Update is called once per frame
-	public void StarMenu()
+       
+
+
+
+
+    }
+
+    public void OpenAchievementsMenu()
+    {
+        achievementsGameObject.SetActive(true);
+        GameSound.PlaySound(sfxUIclick1, true);
+
+        for(int i = 0; i<20; i++)
+        {
+            if( i < 10)
+            {
+                GameObject locked = Instantiate(lockedAchieve, new Vector3(refAchieve.transform.position.x + (i * 55), refAchieve.transform.position.y), Quaternion.identity);
+                locked.transform.SetParent(lockedCont.transform);
+            }
+            else
+            {
+                GameObject locked = Instantiate(lockedAchieve, new Vector3((refAchieve.transform.position.x - 550) + (i * 55), refAchieve.transform.position.y - 100), Quaternion.identity);
+                locked.transform.SetParent(lockedCont.transform);   
+
+            }
+            
+        }
+    }
+
+    public void CloseAchievementsMenu()
+    {
+        achievementsGameObject.SetActive(false);
+        GameSound.PlaySound(sfxUIclick2, true);
+
+        Debug.Log(lockedCont.transform.childCount);
+
+        foreach (Transform childTransform in lockedCont.transform) Destroy(childTransform.gameObject);
+
+        Debug.Log(lockedCont.transform.childCount);
+    }
+    // Update is called once per frame
+    public void StarMenu()
 	{
 		menuGameObject.SetActive (true);
 		ingameUI.SetActive (false);
 		inMenu = true;
 		highScoreText.text = PlayerPrefs.GetInt ("Highscore").ToString ();
 		scoreUI.SetActive (false);
+        
 		pressStart.SetActive (true);
 
 		preIngame = false;
@@ -251,7 +294,17 @@ public class Game_Manager : MonoBehaviour {
 	
 		GameSound.PlaySound (sfxUIShutDown, true);
 		ship.ShutDown (true);
-		yield return new WaitForSeconds (2);
+        BonusManager.TestGainAchivement(score);
+        if (BonusManager.bonusEnabled)
+        {
+            Debug.Log("salut");
+            circleBonus.SetActive(true);
+
+        }
+
+        yield return new WaitForSeconds (2);
+        if (circleBonus.activeInHierarchy)
+            circleBonus.SetActive(false);
 		GameEffect.FlashCamera (Color.black,1);
 
 		yield return new WaitForSeconds (.5f);
@@ -260,9 +313,7 @@ public class Game_Manager : MonoBehaviour {
 		Camera.main.GetComponent<Animator> ().enabled = true;
 		Camera.main.GetComponent<Animator> ().Play ("cameraIdle");
 		yield return new WaitForSeconds (1);
-		ShowCurrentAndBestScore ();
-		BonusManager.TestGainAchivement (score);
-
+		ShowCurrentAndBestScore ();		
 		yield return new WaitForSeconds (3);
 		foreach (Transform text in scoreUI.transform)
 			text.GetComponent<Animator> ().Play ("fadeOut");
@@ -272,6 +323,15 @@ public class Game_Manager : MonoBehaviour {
 	void ShowCurrentAndBestScore()
 	{
 		scoreUI.SetActive (true);
+        if(BonusManager.bonusEnabled)
+        {
+            achieveUI.SetActive(true);
+            BonusManager.bonusEnabled = false;
+        }
+        else
+        {
+            achieveUI.SetActive(false);
+        }
 		scoreUI.transform.GetChild(0).GetComponent<Text>().text = "Highest Score \n" + PlayerPrefs.GetInt ("Highscore").ToString ();
 		scoreUI.transform.GetChild(1).GetComponent<Text>().text =  "Score \n" + score.ToString();
 	}

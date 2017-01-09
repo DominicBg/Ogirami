@@ -10,6 +10,7 @@ public class BonusManager : MonoBehaviour {
 	public static bool bonusLifeRegen = false;
 	public static float bonusBiggerCannonBall = 1;
 	public static int bonusLife = 0;
+    public static bool bonusEnabled = false;
 
 
 	// Use this for initialization
@@ -22,6 +23,7 @@ public class BonusManager : MonoBehaviour {
 	{
 		if (score / 50 > achivementSteps) {
 			achivementSteps++;
+            bonusEnabled = true;
 			Debug.Log ("new achivement " + achivementSteps);
 		}
 		PlayerPrefs.SetInt ("AchivementSteps",achivementSteps);
