@@ -16,18 +16,18 @@ public class Game_Manager : MonoBehaviour {
 	[SerializeField]Image musicIcon;
 	[SerializeField]GameObject pressStart;
 
-	public static bool ResetSpawnTimer = false;
 	public static bool inMenu = true;
 	bool preIngame = false;
 	public GameObject menuGameObject;
 	public GameObject ingameUI;
 	public GameObject creditUI;
 	public GameObject scoreUI;
-
+	[SerializeField]EnemySpawn[] spawners;
 
 	[SerializeField]GameObject[] introUI_Texts_icons;
 	[SerializeField]Transform Arc;
 	[SerializeField]Color lifeOrbColor;
+	[SerializeField]Color lifeOrbColorArmor;
 	[SerializeField]Color lifeOrbColorDestroyed;
 
 	public Ship ship;
@@ -146,6 +146,8 @@ public class Game_Manager : MonoBehaviour {
 	{
 		score += points;
 		scoreText.text = score.ToString();
+		if (score % 25 == 0 && BonusManager.bonusLifeRegen)
+			ChangeLife (1); // heal 1
 	}
 	public void GetHit(bool fromNormalEnemy)
 	{
@@ -162,22 +164,27 @@ public class Game_Manager : MonoBehaviour {
 		currentLife += damage;
 
 
-		if (currentLife <= 0) 
+		if (currentLife > maxLife + BonusManager.bonusLife)
+			currentLife =  maxLife + BonusManager.bonusLife;
+		
+		else if (currentLife <= 0) 
 		{
 			Debug.Log ("game over");
 			CompareHighScore ();
 			StartCoroutine (delayEndGame ());
 			//StarMenu ();
 		}
-			
+		Debug.Log ("life " + currentLife);
+
 		for (int i = 0; i < Arc.childCount; i++)
 		{
-			if (currentLife-1 >= i)//got the life
+
+			if (currentLife-1 >= i && currentLife-1 >= 5+i)//got the amored life
+				Arc.GetChild(i).GetComponent<MeshRenderer> ().material.SetColor ("_Color",lifeOrbColorArmor);
+			else if (currentLife-1 >= i)//got the life
 				Arc.GetChild(i).GetComponent<MeshRenderer> ().material.SetColor ("_Color",lifeOrbColor);
-				//Arc.GetChild(i).gameObject.SetActive (true);
 			else
 				Arc.GetChild(i).GetComponent<MeshRenderer> ().material.SetColor ("_Color", lifeOrbColorDestroyed);
-				//Arc.GetChild(i).gameObject.SetActive (false);
 
 		}
 
@@ -193,8 +200,13 @@ public class Game_Manager : MonoBehaviour {
 
 	IEnumerator delayStartGame()
 	{
+		BonusManager.LoadAchivement ();
+		BonusManager.AjustBonus ();
 		preIngame = true;
 		ship.ShutDown (false);
+
+		ship.GetComponent<CannonBall_Pooling> ().Pooling ();
+
 
 		pressStart.SetActive (false);
 		GameSound.PlaySound (sfxUIstartGame, true);
@@ -209,7 +221,7 @@ public class Game_Manager : MonoBehaviour {
 		GameSound.PlaySound (GetComponent<World_Manager>().sfxSwitchWorld, true,100,1);
 
 		score = 0;
-		currentLife = maxLife;
+		currentLife = maxLife + BonusManager.bonusLife;
 		GiveScore (0);
 		ChangeLife (0);
 
@@ -224,7 +236,8 @@ public class Game_Manager : MonoBehaviour {
 	
 		ship.StartGameShip ();
 		GetComponent<Animator> ().enabled = false;
-		ResetSpawnTimer = true;
+		foreach (EnemySpawn spawner in spawners)
+			spawner.timerSpawn = 3;
 	}
 	IEnumerator delayEndGame()
 	{
@@ -248,6 +261,8 @@ public class Game_Manager : MonoBehaviour {
 		Camera.main.GetComponent<Animator> ().Play ("cameraIdle");
 		yield return new WaitForSeconds (1);
 		ShowCurrentAndBestScore ();
+		BonusManager.TestGainAchivement (score);
+
 		yield return new WaitForSeconds (3);
 		foreach (Transform text in scoreUI.transform)
 			text.GetComponent<Animator> ().Play ("fadeOut");

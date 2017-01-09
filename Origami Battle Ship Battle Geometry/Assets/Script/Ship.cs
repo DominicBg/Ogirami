@@ -216,7 +216,7 @@ public class Ship : MonoBehaviour {
 	}
 	void LightColorUpdate()
 	{
-		t_h += Time.deltaTime;
+		t_h += Time.deltaTime * BonusManager.bonusAimSpeed;
 		h = Mathf.Lerp (MIN_H, MAX_H, t_h);
 
 

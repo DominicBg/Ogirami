@@ -168,6 +168,20 @@ public static class GameEffect {
 		Camera.main.gameObject.GetComponent<FlashCameraClass> ().Flash (Color.white,image, time);
 
 	}
+	public static void DestroyChilds(Transform parent)
+	{
+		if (parent.childCount != null) 
+		{
+			int childs = parent.childCount;
+			for (int i = 0; i <= childs - 1; i++)
+				MonoBehaviour.Destroy (parent.GetChild (i).gameObject);
+		}
+
+	}
+	public static void DestroyChilds(GameObject parent)
+	{
+		GameEffect.DestroyChilds (parent.transform);
+	}
 }
 public static class GameSound
 {

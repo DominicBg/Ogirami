@@ -14,12 +14,18 @@ public class CannonBall_Pooling : MonoBehaviour {
 	[SerializeField]GameObject prefab_UI_CannonBall;
 	[SerializeField]float distanceBetweenUI_Cannonball;
 	// Use this for initialization
-	void Start () 
+
+	void Start()
 	{
 		shipRef = GetComponent<Ship> ();
+	}
+	public void Pooling () 
+	{
+		GameEffect.DestroyChilds (parent);
+		GameEffect.DestroyChilds (UI_CannonBall_null);
 
-		cannonBallList = new GameObject[howManyCannonBall];
-		for (int i = 0; i < howManyCannonBall; i++)
+		cannonBallList = new GameObject[howManyCannonBall+BonusManager.bonusCannonBall];
+		for (int i = 0; i < howManyCannonBall+BonusManager.bonusCannonBall; i++)
 		{
 			GameObject Cannon = Instantiate (prefabCannonBall, transform.position, Quaternion.identity) as GameObject;
 			Cannon.transform.SetParent (parent, true);
@@ -28,7 +34,7 @@ public class CannonBall_Pooling : MonoBehaviour {
 			cannonBallList [i].SetActive (false);
 
 			GameObject CannonUI = Instantiate (prefab_UI_CannonBall, UI_CannonBall_null.position, Quaternion.identity) as GameObject;
-			float x = ((howManyCannonBall - 1) / 2); //offset
+			float x = (((howManyCannonBall +BonusManager.bonusCannonBall)- 1) / 2); //offset
 			CannonUI.transform.SetParent (UI_CannonBall_null, false);
 			CannonUI.transform.localPosition = new Vector3 ((i - x) * distanceBetweenUI_Cannonball, 0, 0);
 			CannonUI.name = "CannonUI_" + i;

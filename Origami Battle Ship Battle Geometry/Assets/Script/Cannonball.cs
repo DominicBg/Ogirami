@@ -9,7 +9,7 @@ public class Cannonball: MonoBehaviour {
 	public bool isUsed = false;
 	public int cannonBall_index = 0;
 	///	///	///	///	///	///	///	///	///
-
+	float t= 0;
 	void Start()
 	{
 		rigidbody = GetComponent<Rigidbody> ();
@@ -23,6 +23,20 @@ public class Cannonball: MonoBehaviour {
 	void Update ()
 	{
 		testReturnPooling ();
+		SpawnAnim ();
+	}
+	void SpawnAnim()
+	{
+		if (t < 1)
+		{
+			t += Time.deltaTime * 3;
+			float size = Mathf.Lerp (0, 1 * BonusManager.bonusBiggerCannonBall, t);
+			transform.localScale = new Vector3 (size, size, size);
+		}
+	}
+	void OnEnable()
+	{
+		t = 0;
 
 	}
 	void testReturnPooling()
@@ -33,9 +47,12 @@ public class Cannonball: MonoBehaviour {
 			rigidbody.useGravity = false;
 			rigidbody.transform.position = transform.parent.position;
 			rigidbody.velocity = new Vector3 (0, 0, 0);
+			transform.localScale = new Vector3 (0, 0, 0);
+
 			isUsed = false;
 			gameObject.SetActive (false);
 			pooling.AjustUI_Cannonball ();
+
 
 		}
 

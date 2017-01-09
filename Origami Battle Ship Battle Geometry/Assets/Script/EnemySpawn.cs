@@ -10,7 +10,7 @@ public class EnemySpawn : MonoBehaviour {
 
     bool spawnDelay = true;
 	public GameObject destinationPos;
-    float timerSpawn = 3;
+    public float timerSpawn = 3;
     int spawnCount;
 	[SerializeField]bool isNormalSpawner;
 
@@ -24,14 +24,7 @@ public class EnemySpawn : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (Game_Manager.ResetSpawnTimer) 
-		{
-			timerSpawn = 3;
-			spawnCount = 0;
-			Game_Manager.ResetSpawnTimer = false;
-			Debug.Log ("reset : " + timerSpawn);
-		}
-
+	
 		if(spawnDelay && !Game_Manager.inMenu && World_Manager.canChange)
         {
             spawnDelay = false;
@@ -56,9 +49,9 @@ public class EnemySpawn : MonoBehaviour {
             {
                 spawnCount = 0;
                 timerSpawn -= .2f; 
-                if(timerSpawn <= 1f)
+                if(timerSpawn <= 1.3f)
                 {
-                    timerSpawn = 1f;
+                    timerSpawn = 1.3f;
                 }
                 
             }
