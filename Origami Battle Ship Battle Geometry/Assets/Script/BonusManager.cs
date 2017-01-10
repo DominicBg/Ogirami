@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BonusManager : MonoBehaviour {
 
-	static int achivementSteps = 0;
+	static public int achivementSteps = 0;
 	public static int bonusCannonBall = 0;
 	public static float bonusAimSpeed = 1;
 	public static bool bonusLifeRegen = false;

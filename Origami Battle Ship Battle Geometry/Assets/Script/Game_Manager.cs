@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 
 public class Game_Manager : MonoBehaviour {
 
@@ -23,8 +25,8 @@ public class Game_Manager : MonoBehaviour {
 	public GameObject creditUI;
 	public GameObject scoreUI, achieveUI;
     public GameObject circleBonus;
-    public GameObject lockedAchieve, lockedCont;
-    public Transform refAchieve;
+	[SerializeField]GameObject lockedAchieve, achivementUIList;
+	[SerializeField]Text achivementDescription;
 	[SerializeField]EnemySpawn[] spawners;
 
 	[SerializeField]GameObject[] introUI_Texts_icons;
@@ -48,18 +50,17 @@ public class Game_Manager : MonoBehaviour {
 	// Use this for initialization
 
 
-
+	public List<Achivement> AchivementList = new List<Achivement>();
 
 	void Start ()
 	{
 		GameSound.EnableAudio ();
-        PlayerPrefs.DeleteAll();
 		GameSound.SetMusicChannel (2);
 		GameSound.SetMusicIntoChannel (musicNormal,0,1,true);
 		GameSound.SetMusicIntoChannel (musicFractal,1,0,true);
 		GameSound.EnableToggleMusicVolume (3);
 		GameSound.EnableToggleSoundVolume (3);
-
+		BonusManager.LoadAchivement ();
 		LoadToggleVolume ();
 		StarMenu ();
 	}
@@ -132,40 +133,53 @@ public class Game_Manager : MonoBehaviour {
 
 
     }
+	[ContextMenu ("UpdateAchievementsMenu")] 
+	public void UpdateAchievementsMenu()
+	{
+		for (int i = 0; i < 20; i++)
+		{
+			float offset = (i >= 10) ? 100 : 0;
+			GameObject locked = Instantiate(lockedAchieve, new Vector3(achivementUIList.transform.position.x + (i%10 * 55), achivementUIList.transform.position.y - offset), Quaternion.identity);
+			locked.transform.SetParent(achivementUIList.transform);
+		
+			locked.GetComponent<AchivementIcon> ().locked = true;
+			locked.GetComponent<AchivementIcon> ().text = AchivementList [i].description;
+		}
+	}
+
 
     public void OpenAchievementsMenu()
     {
+		achivementDescription.text = "";
         achievementsGameObject.SetActive(true);
         GameSound.PlaySound(sfxUIclick1, true);
+		Debug.Log (BonusManager.achivementSteps);
+		for (int i = 0; i < 20; i++)
+		{
+			Image lockedImage = achivementUIList.transform.GetChild (i).GetComponent<Image> ();
 
-        for(int i = 0; i<20; i++)
-        {
-            if( i < 10)
-            {
-                GameObject locked = Instantiate(lockedAchieve, new Vector3(refAchieve.transform.position.x + (i * 55), refAchieve.transform.position.y), Quaternion.identity);
-                locked.transform.SetParent(lockedCont.transform);
-            }
-            else
-            {
-                GameObject locked = Instantiate(lockedAchieve, new Vector3((refAchieve.transform.position.x - 550) + (i * 55), refAchieve.transform.position.y - 100), Quaternion.identity);
-                locked.transform.SetParent(lockedCont.transform);   
+			if (BonusManager.achivementSteps > i && lockedImage.GetComponent<AchivementIcon> ().locked) 
+			{
+				lockedImage.GetComponent<Button>().onClick.AddListener(() => ClickOnAchivement());
 
-            }
-            
-        }
+				Debug.Log ("unlokc");
+				lockedImage.color = AchivementList [i].color;
+				lockedImage.sprite = AchivementList [i].sprite;
+				lockedImage.GetComponent<AchivementIcon> ().locked = false;
+			}
+		}
     }
-
     public void CloseAchievementsMenu()
     {
         achievementsGameObject.SetActive(false);
         GameSound.PlaySound(sfxUIclick2, true);
-
-        Debug.Log(lockedCont.transform.childCount);
-
-        foreach (Transform childTransform in lockedCont.transform) Destroy(childTransform.gameObject);
-
-        Debug.Log(lockedCont.transform.childCount);
     }
+	public void ClickOnAchivement()
+	{
+		GameSound.PlaySound(sfxUIclick1, true);
+		achivementDescription.text = EventSystem.current.currentSelectedGameObject.GetComponent<AchivementIcon> ().text;
+	}
+
     // Update is called once per frame
     public void StarMenu()
 	{
@@ -335,4 +349,11 @@ public class Game_Manager : MonoBehaviour {
 		scoreUI.transform.GetChild(0).GetComponent<Text>().text = "Highest Score \n" + PlayerPrefs.GetInt ("Highscore").ToString ();
 		scoreUI.transform.GetChild(1).GetComponent<Text>().text =  "Score \n" + score.ToString();
 	}
+}
+[System.Serializable]
+public struct Achivement
+{
+	public Sprite sprite;
+	public Color color;
+	public string description;
 }
