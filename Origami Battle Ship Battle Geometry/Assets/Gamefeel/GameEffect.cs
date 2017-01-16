@@ -458,7 +458,10 @@ public static class GameSound
 public static class GameMath
 {
 	///////***************** Math ********************////////
-
+	public static float CenterAlign(int NumberOfObject, float distance, int i)
+	{
+		return ((i - (((NumberOfObject) - 1) / 2)) * distance) - (((NumberOfObject + 1) % 2) * (distance / 2));
+	}
 	public static float sinerp(float t)
 	{
 		return Mathf.Sin (t * Mathf.PI * 0.5f);

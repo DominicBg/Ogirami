@@ -34,10 +34,12 @@ public class CannonBall_Pooling : MonoBehaviour {
 			cannonBallList [i].SetActive (false);
 
 			GameObject CannonUI = Instantiate (prefab_UI_CannonBall, UI_CannonBall_null.position, Quaternion.identity) as GameObject;
-			float x = (((howManyCannonBall +BonusManager.bonusCannonBall)- 1) / 2); //offset
 			CannonUI.transform.SetParent (UI_CannonBall_null, false);
-			CannonUI.transform.localPosition = new Vector3 ((i - x) * distanceBetweenUI_Cannonball, 0, 0);
 			CannonUI.name = "CannonUI_" + i;
+
+			float x = GameMath.CenterAlign (howManyCannonBall + BonusManager.bonusCannonBall, distanceBetweenUI_Cannonball, i);
+			CannonUI.transform.localPosition = new Vector3 (x, 0, 0);
+			
 		}
 		AjustUI_Cannonball ();
 	}

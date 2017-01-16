@@ -62,6 +62,7 @@ public class Game_Manager : MonoBehaviour {
 		GameSound.EnableToggleSoundVolume (3);
 		BonusManager.LoadAchivement ();
 		LoadToggleVolume ();
+		UpdateAchivement ();
 		StarMenu ();
 	}
 	void Update()
@@ -154,6 +155,10 @@ public class Game_Manager : MonoBehaviour {
         achievementsGameObject.SetActive(true);
         GameSound.PlaySound(sfxUIclick1, true);
 		Debug.Log (BonusManager.achivementSteps);
+		UpdateAchivement ();
+    }
+	public void UpdateAchivement()
+	{
 		for (int i = 0; i < 20; i++)
 		{
 			Image lockedImage = achivementUIList.transform.GetChild (i).GetComponent<Image> ();
@@ -168,7 +173,7 @@ public class Game_Manager : MonoBehaviour {
 				lockedImage.GetComponent<AchivementIcon> ().locked = false;
 			}
 		}
-    }
+	}
     public void CloseAchievementsMenu()
     {
         achievementsGameObject.SetActive(false);
