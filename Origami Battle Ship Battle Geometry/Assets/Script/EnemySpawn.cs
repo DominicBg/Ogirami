@@ -30,7 +30,8 @@ public class EnemySpawn : MonoBehaviour {
             spawnDelay = false;
 
 			//Enemy Spawn
-			GameObject enemy = Instantiate(enemyPrefab, new Vector3(Random.Range(-15,15), transform.position.y, Random.Range(5, 10)), Quaternion.identity);
+			int spawnSide = (Random.Range(0,2) == 0) ? Random.Range(-5,-15) : Random.Range(5,15);
+			GameObject enemy = Instantiate(enemyPrefab, new Vector3(spawnSide, transform.position.y, Random.Range(5, 10)), Quaternion.identity);
 			EnemyScript enemyScript = enemy.GetComponent<EnemyScript> ();
 			enemy.transform.SetParent (transform, true);
 
@@ -48,10 +49,10 @@ public class EnemySpawn : MonoBehaviour {
             if(spawnCount >= 5)
             {
                 spawnCount = 0;
-                timerSpawn -= .2f; 
-                if(timerSpawn <= 1.3f)
+                timerSpawn -= .1f; 
+                if(timerSpawn <= 0.7f)
                 {
-                    timerSpawn = 1.3f;
+                    timerSpawn = 0.7f;
                 }
                 
             }

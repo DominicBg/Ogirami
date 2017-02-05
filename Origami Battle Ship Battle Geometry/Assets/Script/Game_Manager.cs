@@ -20,6 +20,9 @@ public class Game_Manager : MonoBehaviour {
 
 	public static bool inMenu = true;
 	bool preIngame = false;
+	enum enumDifficulty{Easy,Medium,Hard}
+	enumDifficulty difficulty;
+	[SerializeField]Text textDifficulty;
 	public GameObject menuGameObject, achievementsGameObject;
 	public GameObject ingameUI;
 	public GameObject creditUI;
@@ -64,6 +67,9 @@ public class Game_Manager : MonoBehaviour {
 		LoadToggleVolume ();
 		UpdateAchivement ();
 		StarMenu ();
+
+		difficulty = (enumDifficulty)PlayerPrefs.GetInt ("Difficulty");
+		ShowTextDifficulty ();
 	}
 	void Update()
 	{
@@ -80,6 +86,31 @@ public class Game_Manager : MonoBehaviour {
 			);
 			Camera.main.backgroundColor = color;
 			ship.light.color = color;
+		}
+	}
+	public void ChangeDifficulty()
+	{
+		difficulty++;
+		if (difficulty > enumDifficulty.Hard)
+			difficulty = 0;
+
+		PlayerPrefs.SetInt ("Difficulty",(int)difficulty);
+		PlayerPrefs.Save ();
+		ShowTextDifficulty ();
+	}
+	public void ShowTextDifficulty()
+	{
+		switch (difficulty) 
+		{
+		case enumDifficulty.Easy:
+			textDifficulty.text = "EASY";
+			break;
+		case enumDifficulty.Medium:
+			textDifficulty.text = "MEDIUM";
+			break;
+		case enumDifficulty.Hard:
+			textDifficulty.text = "HARD";
+			break;
 		}
 	}
 	public void ToggleSoundVolume()
@@ -151,12 +182,20 @@ public class Game_Manager : MonoBehaviour {
 
     public void OpenAchievementsMenu()
     {
-		achivementDescription.text = "";
+		achivementDescription.text = ReturnNextAchivementText();
         achievementsGameObject.SetActive(true);
         GameSound.PlaySound(sfxUIclick1, true);
 		Debug.Log (BonusManager.achivementSteps);
 		UpdateAchivement ();
     }
+	string ReturnNextAchivementText()
+	{
+		if(BonusManager.achivementSteps == 20)
+			return "";
+		
+
+		return "Score over " + (BonusManager.achivementSteps * 50 + 50).ToString () + " to unlock next achivement";
+	}
 	public void UpdateAchivement()
 	{
 		for (int i = 0; i < 20; i++)
@@ -299,7 +338,7 @@ public class Game_Manager : MonoBehaviour {
 		ship.StartGameShip ();
 		GetComponent<Animator> ().enabled = false;
 		foreach (EnemySpawn spawner in spawners)
-			spawner.timerSpawn = 3;
+			spawner.timerSpawn = (3 - (int)difficulty + 1); //3 sec for ez, 2 for med, 1 for hard
 	}
 	IEnumerator delayEndGame()
 	{
@@ -315,11 +354,8 @@ public class Game_Manager : MonoBehaviour {
 		ship.ShutDown (true);
         BonusManager.TestGainAchivement(score);
         if (BonusManager.bonusEnabled)
-        {
-            Debug.Log("salut");
             circleBonus.SetActive(true);
 
-        }
 
         yield return new WaitForSeconds (2);
         if (circleBonus.activeInHierarchy)
@@ -335,7 +371,10 @@ public class Game_Manager : MonoBehaviour {
 		ShowCurrentAndBestScore ();		
 		yield return new WaitForSeconds (3);
 		foreach (Transform text in scoreUI.transform)
-			text.GetComponent<Animator> ().Play ("fadeOut");
+		{
+			if(text.GetComponent<Animator> () != null)
+				text.GetComponent<Animator> ().Play ("fadeOut");
+		}
 		yield return new WaitForSeconds (1);
 		StarMenu ();
 	}

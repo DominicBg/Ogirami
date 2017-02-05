@@ -69,6 +69,7 @@ public class Ship : MonoBehaviour {
 	public void StartGameShip()
 	{
 		target.gameObject.SetActive (true);
+		Cannon.transform.localEulerAngles = new Vector3 (0, 90, 90);
 	}
 	public void EndGameShip()
 	{

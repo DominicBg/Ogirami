@@ -41,7 +41,7 @@ public class CannonBall_Pooling : MonoBehaviour {
 			CannonUI.transform.localPosition = new Vector3 (x, 0, 0);
 			
 		}
-		AjustUI_Cannonball ();
+		ShowCannonball ();
 	}
 	/// <summary>
 	/// Returns the cannon ball. Return null if its on cooldown
@@ -75,8 +75,12 @@ public class CannonBall_Pooling : MonoBehaviour {
 				UI_CannonBall_null.GetChild(i).gameObject.SetActive (true);
 			else
 				UI_CannonBall_null.GetChild(i).gameObject.SetActive (false);
-			
 		}
+	}
+	void ShowCannonball()
+	{
+		for (int i = 0; i < UI_CannonBall_null.childCount; i++)
+			UI_CannonBall_null.GetChild(i).gameObject.SetActive (true);
 	}
 
 }

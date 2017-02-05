@@ -495,6 +495,17 @@ public static class GameMath
 
 		return .5f +  stretchAmount + ((C + .5f) * stretchAmount);
 	}
+	/*
+	public static T Map<T>(T _x, T _in_min, T _in_max, T _out_min, T _out_max) where T : System.IComparable<T>
+	{
+		var x = System.Convert.ToDouble (_x);
+		var in_min = System.Convert.ToDouble (_in_min);
+		var in_max = System.Convert.ToDouble (_in_max);
+		var out_min= System.Convert.ToDouble (_out_min);
+		var out_max= System.Convert.ToDouble (_out_max);
+
+		return (T)((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
+	}*/
 
 	public static double Map(double x, double in_min, double in_max, double out_min, double out_max)
 	{
@@ -511,11 +522,7 @@ public static class GameMath
 	public static float Map(float x, float in_min, float in_max, float out_min, float out_max)
 	{
 		float y = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-	/*	if (y > out_max)
-			return out_max;
-		else if(y < out_min)
-			return out_min;
-*/
+
 		return y;
 	}
 	public static long Map(long x, long in_min, long in_max, long out_min, long out_max)
