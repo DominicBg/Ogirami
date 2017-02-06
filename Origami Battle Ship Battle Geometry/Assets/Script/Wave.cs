@@ -34,16 +34,25 @@ public class Wave : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
+        
+
+
 		for (int i = 0; i < vertices.Length; i++) 
 		{
-			/*
+            /*
 			vertices [i] += normals [i] *
 			(0.01f * Mathf.Sin (2 * i + 3 * Time.time)) *
 				(Mathf.Cos (3 * i + 7 * Time.time)) *
 				(Mathf.Cos (100 * i + 1 * Time.time));
 				*/
-			vertices [i] += normals [i] * WaveFunction(i);
-		}
+
+           
+            vertices [i].y = Mathf.Clamp(normals[i].y * WaveFunction(i) * 10, -5, 5);
+            
+
+
+
+        }
 		if (Water.gameObject.activeInHierarchy)
 		{
 			Water.mesh.vertices = vertices;
